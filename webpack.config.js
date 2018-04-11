@@ -3,7 +3,7 @@ const path = require("path");
 const resolve = file => path.resolve(__dirname, file);
 
 module.exports = {
-	entry: resolve("js/Game.ts"),
+	entry: resolve("js/GameController.ts"),
 	output: {
 		filename: "bundle.js",
 		path: resolve("dist")

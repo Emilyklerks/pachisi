@@ -66,7 +66,7 @@
 /******/
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = "./js/Game.ts");
+/******/ 	return __webpack_require__(__webpack_require__.s = "./js/GameController.ts");
 /******/ })
 /************************************************************************/
 /******/ ({
@@ -185,7 +185,7 @@ var Board = /** @class */ (function () {
         }
         return count;
     };
-    Board.prototype.getStartingSquareOfColor = function (c) {
+    Board.getStartingSquareOfColor = function (c) {
         if (c == Color_1.Color.RED)
             return 0;
         if (c == Color_1.Color.BLUE)
@@ -195,7 +195,7 @@ var Board = /** @class */ (function () {
         if (c == Color_1.Color.YELLOW)
             return 30;
     };
-    Board.prototype.getFinalSquareOfColor = function (c) {
+    Board.getFinalSquareOfColor = function (c) {
         if (c == Color_1.Color.RED)
             return 39;
         if (c == Color_1.Color.BLUE)
@@ -279,10 +279,120 @@ exports.default = ColouredSquare;
 
 /***/ }),
 
-/***/ "./js/GUI.ts":
-/*!*******************!*\
-  !*** ./js/GUI.ts ***!
-  \*******************/
+/***/ "./js/GameController.ts":
+/*!******************************!*\
+  !*** ./js/GameController.ts ***!
+  \******************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var Board_1 = __webpack_require__(/*! ./Board */ "./js/Board.ts");
+var Color_1 = __webpack_require__(/*! ./Color */ "./js/Color.ts");
+var PieceHolder_1 = __webpack_require__(/*! ./PieceHolder */ "./js/PieceHolder.ts");
+var GameState_1 = __webpack_require__(/*! ./GameState */ "./js/GameState.ts");
+var GameGUI_1 = __webpack_require__(/*! ./GameGUI */ "./js/GameGUI.ts");
+var GameController = /** @class */ (function () {
+    function GameController() {
+        this.canvasElement = document.getElementById("myCanvas");
+        this.pawnClicked = false;
+        this.clickedPawnIndex = 0;
+    }
+    GameController.prototype.initialize = function () {
+        var board = new Board_1.default();
+        this.gameState = new GameState_1.default(board, Color_1.Color.RED);
+    };
+    GameController.prototype.iterateTurns = function () {
+        GameGUI_1.default.drawGameState(this.gameState);
+        this.rollDie();
+        GameGUI_1.default.drawGameState(this.gameState);
+        // if (!this.gameover) {
+        //     this.iterateTurns(newGS);
+        // }
+    };
+    GameController.prototype.rollDie = function () {
+        var roll = Math.floor(Math.random() * 6) + 1;
+        if (roll == 6) {
+            if (this.gameState.myBoard.getNumberOfPawnsOnBoardOfColor(this.gameState.currentTurnColor) < 4) {
+                var startSquare = Board_1.default.getStartingSquareOfColor(this.gameState.currentTurnColor);
+                this.gameState.myBoard.squareArray[startSquare].occupyingPiece = PieceHolder_1.default.returnPieceOfColor(this.gameState.currentTurnColor);
+            }
+        }
+        this.gameState = new GameState_1.default(this.gameState.myBoard, this.gameState.currentTurnColor, true, roll);
+    };
+    GameController.prototype.selectPawn = function () {
+        console.log("a pawn is clicked!");
+        var rolledPluscurrent = this.clickedPawnIndex + this.gameState.rolledNumber;
+        var resultingPosition = rolledPluscurrent > 39 ? rolledPluscurrent - 39 : rolledPluscurrent;
+        var finalSquareOfColor = Board_1.default.getFinalSquareOfColor(this.gameState.currentTurnColor);
+        if (this.passedFinalSquare(this.clickedPawnIndex, this.gameState.currentTurnColor)) {
+            this.movePawnToFinalRow();
+        }
+        else {
+            this.movePawn(resultingPosition);
+        }
+        this.gameState.currentTurnColor = this.gameState.currentTurnColor == 3 ? 0 : this.gameState.currentTurnColor + 1;
+        this.iterateTurns();
+    };
+    GameController.prototype.clickOnBoardToChoosePawn = function (e) {
+        this.mouseX = e.clientX - 10;
+        this.mouseY = e.clientY - 10;
+        var clickedSquareIndex = this.gameState.myBoard.getClickedSquareIndex(this.mouseX, this.mouseY);
+        console.log("clicked square index" + clickedSquareIndex);
+        var clickedPiece = this.gameState.myBoard.squareArray[clickedSquareIndex].occupyingPiece;
+        console.log(clickedPiece);
+        if (clickedPiece.color === this.gameState.currentTurnColor) {
+            this.clickedPawnIndex = clickedSquareIndex;
+            this.selectPawn();
+        }
+    };
+    GameController.prototype.movePawn = function (resultPos) {
+        if (this.gameState.myBoard.squareArray[resultPos].occupyingPiece.color == this.gameState.currentTurnColor) {
+            alert("You can't move your pawn to land on one of your own pawns.");
+        }
+        else {
+            this.gameState.myBoard.squareArray[this.clickedPawnIndex].occupyingPiece = PieceHolder_1.default.NONE;
+            this.gameState.myBoard.squareArray[resultPos].occupyingPiece = PieceHolder_1.default.returnPieceOfColor(this.gameState.currentTurnColor);
+        }
+    };
+    GameController.prototype.movePawnToFinalRow = function () {
+        var c = this.gameState.currentTurnColor;
+        var finalRow = this.gameState.myBoard.getSquareArrayOfColor(c);
+        var firstFreeSpotOnFinalRow = 3 - this.gameState.myBoard.getNumberOfPawnsOnEndRowOfColor(c);
+        this.gameState.myBoard.squareArray[this.clickedPawnIndex].occupyingPiece = PieceHolder_1.default.NONE;
+        this.gameState.myBoard.getSquareArrayOfColor(c)[firstFreeSpotOnFinalRow].occupyingPiece = PieceHolder_1.default.returnPieceOfColor(c);
+    };
+    GameController.prototype.passedFinalSquare = function (previousIndex, c) {
+        var finalSquareOfColor = Board_1.default.getFinalSquareOfColor(this.gameState.currentTurnColor);
+        if (c == Color_1.Color.RED) {
+            if (previousIndex + this.gameState.rolledNumber > this.gameState.NR_OF_SQUARES_IN_BOARD) {
+                return true;
+            }
+        }
+        else {
+            if (finalSquareOfColor >= previousIndex && finalSquareOfColor < previousIndex + this.gameState.rolledNumber) {
+                return true;
+            }
+        }
+        return false;
+    };
+    return GameController;
+}());
+exports.gc = new GameController();
+exports.gc.initialize();
+exports.gc.iterateTurns();
+document.getElementById("myCanvas").addEventListener("click", function (event) { exports.gc.clickOnBoardToChoosePawn(event); });
+window["gc"] = exports.gc;
+
+
+/***/ }),
+
+/***/ "./js/GameGUI.ts":
+/*!***********************!*\
+  !*** ./js/GameGUI.ts ***!
+  \***********************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -291,16 +401,24 @@ exports.default = ColouredSquare;
 Object.defineProperty(exports, "__esModule", { value: true });
 var Color_1 = __webpack_require__(/*! ./Color */ "./js/Color.ts");
 var PieceHolder_1 = __webpack_require__(/*! ./PieceHolder */ "./js/PieceHolder.ts");
-var GUI = /** @class */ (function () {
-    function GUI(b) {
-        this.boardToBeDrawn = b;
+var GameGUI = /** @class */ (function () {
+    function GameGUI() {
     }
-    GUI.prototype.drawBoardWithPawns = function () {
+    GameGUI.drawGameState = function (GS) {
+        var colorString = Color_1.Color[GS.currentTurnColor];
+        document.getElementById("turnIndicator").innerHTML = colorString + "'s turn!";
+        if (GS.dieRolled) {
+            document.getElementById("rolledNumber").innerHTML = "You have rolled a " + GS.rolledNumber + ". Please select a piece to move.";
+        }
+        else {
+            document.getElementById("rolledNumber").innerHTML = "";
+        }
+        console.log("drawGameState is called");
         var canvas = document.getElementById("myCanvas");
         var ctx = canvas.getContext("2d");
         //Draw the normal board
-        for (var i = 0; i < this.boardToBeDrawn.squareArray.length; i++) {
-            var thisSquare = this.boardToBeDrawn.squareArray[i];
+        for (var i = 0; i < GS.myBoard.squareArray.length; i++) {
+            var thisSquare = GS.myBoard.squareArray[i];
             ctx.fillStyle = "white";
             if (thisSquare.isStartingSquareOfColor == Color_1.Color.RED) {
                 ctx.fillStyle = "pink";
@@ -329,10 +447,10 @@ var GUI = /** @class */ (function () {
         }
         //Draw the final 4 squares of each color
         for (var i = 0; i < 4; i++) {
-            var red = this.boardToBeDrawn.redSquareArray[i];
-            var blue = this.boardToBeDrawn.blueSquareArray[i];
-            var green = this.boardToBeDrawn.greenSquareArray[i];
-            var yellow = this.boardToBeDrawn.yellowSquareArray[i];
+            var red = GS.myBoard.redSquareArray[i];
+            var blue = GS.myBoard.blueSquareArray[i];
+            var green = GS.myBoard.greenSquareArray[i];
+            var yellow = GS.myBoard.yellowSquareArray[i];
             ctx.fillStyle = "red";
             ctx.fillRect(red.xPos, red.yPos, 50, 50);
             ctx.strokeRect(red.xPos, red.yPos, 50, 50);
@@ -376,158 +494,44 @@ var GUI = /** @class */ (function () {
                 ctx.stroke();
             }
         }
-        // ctx.onclick = function (event){
-        //     if (event.region) {
-        //         alert('You clicked ' + event.region);
-        //     }
-        // }
     };
-    GUI.prototype.gameOver = function (c) {
+    GameGUI.prototype.gameOver = function (c) {
         var canvas = document.getElementById("myCanvas");
         var ctx = canvas.getContext("2d");
         ctx.font = "30px Arial";
         var str = Color_1.Color[c].toString;
         ctx.fillText(str + " wins!", 300, 50);
     };
-    return GUI;
+    return GameGUI;
 }());
-exports.default = GUI;
+exports.default = GameGUI;
 
 
 /***/ }),
 
-/***/ "./js/Game.ts":
-/*!********************!*\
-  !*** ./js/Game.ts ***!
-  \********************/
+/***/ "./js/GameState.ts":
+/*!*************************!*\
+  !*** ./js/GameState.ts ***!
+  \*************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var Board_1 = __webpack_require__(/*! ./Board */ "./js/Board.ts");
-var Color_1 = __webpack_require__(/*! ./Color */ "./js/Color.ts");
-var GUI_1 = __webpack_require__(/*! ./GUI */ "./js/GUI.ts");
-var PieceHolder_1 = __webpack_require__(/*! ./PieceHolder */ "./js/PieceHolder.ts");
-var Game = /** @class */ (function () {
-    function Game() {
-        this.myBoard = new Board_1.default();
-        this.myGUI = new GUI_1.default(this.myBoard);
-        this.rolledNumber = 0;
-        this.buttonContainer = document.getElementById("buttonContainer");
+var GameState = /** @class */ (function () {
+    function GameState(newBoard, newTurnColor, isDieRolled, newRolledNumber) {
+        if (isDieRolled === void 0) { isDieRolled = false; }
+        if (newRolledNumber === void 0) { newRolledNumber = 0; }
+        this.NR_OF_SQUARES_IN_BOARD = 39;
+        this.myBoard = newBoard;
+        this.currentTurnColor = newTurnColor;
+        this.dieRolled = isDieRolled;
+        this.rolledNumber = newRolledNumber;
     }
-    Game.prototype.initialize = function () {
-        this.currentTurnColor = Color_1.Color.RED;
-        this.myGUI.drawBoardWithPawns();
-        document.getElementById("turnIndicator").innerHTML = Color_1.Color[this.currentTurnColor] + "'s turn";
-    };
-    Game.prototype.rollDie = function () {
-        this.rolledNumber = Math.floor(Math.random() * 6) + 1;
-        var pawnsOnBoard = this.myBoard.getNumberOfPawnsOnBoardOfColor(this.currentTurnColor);
-        if (pawnsOnBoard > 0) {
-            this.buttonContainer.innerHTML = "<div id='diceNumber'>choose a pawn to move " + this.rolledNumber + " steps.</div>";
-            if (this.rolledNumber == 6) {
-                if (this.myBoard.getNumberOfPawnsOnBoardOfColor(this.currentTurnColor) + this.myBoard.getNumberOfPawnsOnEndRowOfColor(this.currentTurnColor) < 4) {
-                    this.placeNewPawnOnBoard();
-                }
-                this.buttonContainer.innerHTML += "<div id='diceNumber'>You rolled a 6! A new pawn has been placed on the board. </div>";
-            }
-        }
-        else {
-            if (this.rolledNumber == 6) {
-                this.buttonContainer.innerHTML = "<div id='diceNumber'>You rolled a 6! A new pawn has been placed on the board. </div>";
-                this.placeNewPawnOnBoard();
-            }
-            else {
-                this.buttonContainer.innerHTML = "<div id='diceNumber'>You rolled " + this.rolledNumber + ". You will get a new pawn on the board when you roll 6</div>";
-            }
-            this.buttonContainer.innerHTML += "<button id='okButton' onclick=myGame.nextTurn()> ok </button>";
-            //document.getElementById("okButton").addEventListener("click", () => this.nextTurn());
-        }
-    };
-    Game.prototype.mousePosition = function (e) {
-        this.mouseX = e.clientX - 10;
-        this.mouseY = e.clientY - 10;
-    };
-    Game.prototype.choosePawn = function () {
-        if (this.rolledNumber != 0) {
-            var clickedSquareIndex = this.myBoard.getClickedSquareIndex(this.mouseX, this.mouseY);
-            var movedPiece = this.myBoard.squareArray[clickedSquareIndex].occupyingPiece;
-            if (movedPiece.color == this.currentTurnColor) {
-                this.findNewPositionForPawn(movedPiece, clickedSquareIndex);
-            }
-        }
-    };
-    Game.prototype.findNewPositionForPawn = function (p, previous) {
-        var rolledPluscurrent = previous + this.rolledNumber;
-        var result = rolledPluscurrent >= this.myBoard.squareArray.length ? rolledPluscurrent - this.myBoard.squareArray.length : rolledPluscurrent;
-        var finalSquareOfColor = this.myBoard.getFinalSquareOfColor(this.currentTurnColor);
-        var coloredSquareArray = this.myBoard.getSquareArrayOfColor(this.currentTurnColor);
-        var firstFreeSpotOnFinalRow = 3 - this.myBoard.getNumberOfPawnsOnEndRowOfColor(this.currentTurnColor);
-        if (this.passedFinalSquare(previous, p.color)) {
-            console.log("passed final square, moving to endrow");
-            this.movePawn(coloredSquareArray, previous, firstFreeSpotOnFinalRow, p);
-        }
-        else {
-            console.log("not passing final square, moving to new square");
-            this.movePawn(this.myBoard.squareArray, previous, result, p);
-        }
-    };
-    Game.prototype.movePawn = function (row, source, dest, pawn) {
-        if (row[dest].occupyingPiece.color == pawn.color) {
-            alert("You can't move your pawn to land on one of your own pawns.");
-        }
-        else {
-            this.myBoard.squareArray[source].occupyingPiece = PieceHolder_1.default.NONE;
-            row[dest].occupyingPiece = pawn;
-            this.myGUI.drawBoardWithPawns();
-            this.nextTurn();
-        }
-    };
-    Game.prototype.passedFinalSquare = function (previousIndex, c) {
-        var finalSquareOfColor = this.myBoard.getFinalSquareOfColor(this.currentTurnColor);
-        if (c == Color_1.Color.RED) {
-            if (previousIndex + this.rolledNumber > this.myBoard.squareArray.length) {
-                return true;
-            }
-        }
-        else {
-            if (finalSquareOfColor >= previousIndex && finalSquareOfColor < previousIndex + this.rolledNumber) {
-                return true;
-            }
-        }
-        return false;
-    };
-    Game.prototype.placeNewPawnOnBoard = function () {
-        var startSquare = this.myBoard.getStartingSquareOfColor(this.currentTurnColor);
-        this.myBoard.squareArray[startSquare].occupyingPiece = PieceHolder_1.default.returnPieceOfColor(this.currentTurnColor);
-        this.myGUI.drawBoardWithPawns();
-    };
-    Game.prototype.nextTurn = function () {
-        if (this.myBoard.getNumberOfPawnsOnEndRowOfColor(this.currentTurnColor) == 4) {
-            this.gameOver();
-        }
-        else {
-            this.rolledNumber = 0;
-            this.currentTurnColor = this.currentTurnColor == 3 ? 0 : this.currentTurnColor + 1;
-            document.getElementById("turnIndicator").innerHTML = Color_1.Color[this.currentTurnColor] + "'s turn";
-            document.getElementById("buttonContainer").innerHTML = "<button id='turnButton' onclick=myGame.rollDie() >Roll die!</button>";
-            //document.getElementById("turnButton").addEventListener("click", () => myGame.rollDie());
-        }
-    };
-    Game.prototype.gameOver = function () {
-        this.myGUI.gameOver(this.currentTurnColor);
-    };
-    return Game;
+    return GameState;
 }());
-var myGame = new Game();
-myGame.initialize();
-var canvas = document.getElementById("myCanvas");
-canvas.addEventListener("mousemove", function (event) { return myGame.mousePosition(event); });
-canvas.addEventListener("click", function () { return myGame.choosePawn(); });
-document.getElementById("turnButton").addEventListener("click", function () { return myGame.rollDie(); });
-window["myGame"] = myGame;
+exports.default = GameState;
 
 
 /***/ }),

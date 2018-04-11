@@ -118,14 +118,14 @@ export default class Board {
         return count;
     }
 
-    public getStartingSquareOfColor(c: Color) {
+    public static getStartingSquareOfColor(c: Color) {
         if (c == Color.RED) return 0;
         if (c == Color.BLUE) return 10;
         if (c == Color.GREEN) return 20;
         if (c == Color.YELLOW) return 30;
     }
 
-    public getFinalSquareOfColor(c: Color) {
+    public static getFinalSquareOfColor(c: Color) {
         if (c == Color.RED) return 39;
         if (c == Color.BLUE) return 9;
         if (c == Color.GREEN) return 19;

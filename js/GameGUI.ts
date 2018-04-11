@@ -1,21 +1,30 @@
 import Board from "./Board";
 import { Color } from "./Color";
 import PieceHolder from "./PieceHolder";
+import GameState from "./GameState";
 
-export default class GUI {
+export default class GameGUI {
     boardToBeDrawn: Board;
 
-    constructor(b : Board) {
-        this.boardToBeDrawn = b;
-    }
+    public static drawGameState(GS: GameState): void {
 
-    public drawBoardWithPawns(): void {
+        const colorString = Color[GS.currentTurnColor];
+
+        document.getElementById("turnIndicator").innerHTML = colorString + "'s turn!";
+        if (GS.dieRolled) {
+            document.getElementById("rolledNumber").innerHTML = "You have rolled a " + GS.rolledNumber + ". Please select a piece to move.";
+        } else {
+            document.getElementById("rolledNumber").innerHTML = "";
+        }
+        
+
+        console.log("drawGameState is called");
         var canvas = <HTMLCanvasElement> document.getElementById("myCanvas");  
         var ctx = canvas.getContext("2d"); 
 
         //Draw the normal board
-        for (var i = 0; i < this.boardToBeDrawn.squareArray.length; i++) {
-            let thisSquare = this.boardToBeDrawn.squareArray[i];
+        for (var i = 0; i < GS.myBoard.squareArray.length; i++) {
+            let thisSquare = GS.myBoard.squareArray[i];
             
             ctx.fillStyle = "white";
 
@@ -46,10 +55,10 @@ export default class GUI {
         
         //Draw the final 4 squares of each color
         for (var i = 0; i <4; i++) {
-            let red = this.boardToBeDrawn.redSquareArray[i];
-            let blue = this.boardToBeDrawn.blueSquareArray[i];
-            let green = this.boardToBeDrawn.greenSquareArray[i];
-            let yellow = this.boardToBeDrawn.yellowSquareArray[i];
+            let red = GS.myBoard.redSquareArray[i];
+            let blue = GS.myBoard.blueSquareArray[i];
+            let green = GS.myBoard.greenSquareArray[i];
+            let yellow = GS.myBoard.yellowSquareArray[i];
 
             ctx.fillStyle = "red";            
             ctx.fillRect(red.xPos, red.yPos, 50, 50);
@@ -99,14 +108,7 @@ export default class GUI {
                 ctx.fill();
                 ctx.stroke();
             }
-
         }
-
-        // ctx.onclick = function (event){
-        //     if (event.region) {
-        //         alert('You clicked ' + event.region);
-        //     }
-        // }
     }
     
     public gameOver(c : Color) {
