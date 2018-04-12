@@ -55,19 +55,19 @@ export default class Board {
         }
 
         this.squareArray[0].isStartingSquareOfColor = Color.RED;
-        this.squareArray[0].occupyingPiece = PieceHolder.RED;
+        //this.squareArray[0].occupyingPiece = PieceHolder.RED;
         this.squareArray[39].isFinalSquareOfColor = Color.RED;
 
         this.squareArray[10].isStartingSquareOfColor = Color.BLUE;
-        this.squareArray[10].occupyingPiece = PieceHolder.BLUE;
+        //this.squareArray[10].occupyingPiece = PieceHolder.BLUE;
         this.squareArray[9].isFinalSquareOfColor = Color.BLUE;
 
         this.squareArray[20].isStartingSquareOfColor = Color.GREEN;
-        this.squareArray[20].occupyingPiece = PieceHolder.GREEN;
+        //this.squareArray[20].occupyingPiece = PieceHolder.GREEN;
         this.squareArray[19].isFinalSquareOfColor = Color.GREEN;
 
         this.squareArray[30].isStartingSquareOfColor= Color.YELLOW;
-        this.squareArray[30].occupyingPiece= PieceHolder.YELLOW;
+        //this.squareArray[30].occupyingPiece= PieceHolder.YELLOW;
         this.squareArray[29].isFinalSquareOfColor= Color.YELLOW;
     }
 

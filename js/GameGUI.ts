@@ -8,16 +8,24 @@ export default class GameGUI {
 
     public static drawGameState(GS: GameState): void {
 
+        document.getElementById("rolledNumber").innerHTML = "";
+        document.getElementById("buttonContainer").innerHTML = "";
+
         const colorString = Color[GS.currentTurnColor];
-
         document.getElementById("turnIndicator").innerHTML = colorString + "'s turn!";
-        if (GS.dieRolled) {
-            document.getElementById("rolledNumber").innerHTML = "You have rolled a " + GS.rolledNumber + ". Please select a piece to move.";
-        } else {
-            document.getElementById("rolledNumber").innerHTML = "";
-        }
         
-
+        if (GS.myBoard.getNumberOfPawnsOnBoardOfColor(GS.currentTurnColor)==0) {
+            if (GS.rolledNumber == 6) {
+                let str = "You rolled a 6! You get a new pawn.";
+            } else {
+                let str = "You have currently have no pawns on the board. You will get a pawn when you roll a 6.";
+                document.getElementById("rolledNumber").innerHTML = str;
+                document.getElementById("buttonContainer").innerHTML = "<button onclick='gc.moveToNextTurn()'>ok</button>";
+            }
+        } else {
+                document.getElementById("rolledNumber").innerHTML = "You have rolled a " + GS.rolledNumber + ". Please select a piece to move.";
+        }        
+  
         console.log("drawGameState is called");
         var canvas = <HTMLCanvasElement> document.getElementById("myCanvas");  
         var ctx = canvas.getContext("2d"); 

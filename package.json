@@ -6,7 +6,7 @@
 	"private": true,
 	"scripts": {
 		"build": "webpack",
-		"test": "mocha -r ts-node/register test/hello.ts"
+		"test": "karma start"
 	},
 	"dependencies": {},
 	"devDependencies": {

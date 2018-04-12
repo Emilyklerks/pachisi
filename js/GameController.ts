@@ -54,9 +54,6 @@ class GameController {
         } else {
            this.movePawn(resultingPosition);
         }
-
-        this.gameState.currentTurnColor = this.gameState.currentTurnColor == 3 ? 0 : this.gameState.currentTurnColor + 1;
-        this.iterateTurns();
     }
 
     public clickOnBoardToChoosePawn(e) : void {   
@@ -80,15 +77,22 @@ class GameController {
         } else {
             this.gameState.myBoard.squareArray[this.clickedPawnIndex].occupyingPiece = PieceHolder.NONE;
             this.gameState.myBoard.squareArray[resultPos].occupyingPiece = PieceHolder.returnPieceOfColor(this.gameState.currentTurnColor);
+            this.moveToNextTurn();        
         }
     }
-
+   
     private movePawnToFinalRow(): void {
         let c = this.gameState.currentTurnColor;
         let finalRow = this.gameState.myBoard.getSquareArrayOfColor(c);
         let firstFreeSpotOnFinalRow = 3 - this.gameState.myBoard.getNumberOfPawnsOnEndRowOfColor(c);
         this.gameState.myBoard.squareArray[this.clickedPawnIndex].occupyingPiece = PieceHolder.NONE;
         this.gameState.myBoard.getSquareArrayOfColor(c)[firstFreeSpotOnFinalRow].occupyingPiece = PieceHolder.returnPieceOfColor(c);
+        this.moveToNextTurn();
+    }
+
+    public moveToNextTurn() {
+        this.gameState.currentTurnColor = this.gameState.currentTurnColor == 3 ? 0 : this.gameState.currentTurnColor + 1;
+        this.iterateTurns();
     }
 
     private passedFinalSquare(previousIndex : number, c : Color): boolean {

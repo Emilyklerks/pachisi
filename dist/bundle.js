@@ -127,16 +127,16 @@ var Board = /** @class */ (function () {
             this.squareArray[i] = new Square_1.default(PieceHolder_1.default.NONE, x * 50, y * 50, Color_1.Color.NONE);
         }
         this.squareArray[0].isStartingSquareOfColor = Color_1.Color.RED;
-        this.squareArray[0].occupyingPiece = PieceHolder_1.default.RED;
+        //this.squareArray[0].occupyingPiece = PieceHolder.RED;
         this.squareArray[39].isFinalSquareOfColor = Color_1.Color.RED;
         this.squareArray[10].isStartingSquareOfColor = Color_1.Color.BLUE;
-        this.squareArray[10].occupyingPiece = PieceHolder_1.default.BLUE;
+        //this.squareArray[10].occupyingPiece = PieceHolder.BLUE;
         this.squareArray[9].isFinalSquareOfColor = Color_1.Color.BLUE;
         this.squareArray[20].isStartingSquareOfColor = Color_1.Color.GREEN;
-        this.squareArray[20].occupyingPiece = PieceHolder_1.default.GREEN;
+        //this.squareArray[20].occupyingPiece = PieceHolder.GREEN;
         this.squareArray[19].isFinalSquareOfColor = Color_1.Color.GREEN;
         this.squareArray[30].isStartingSquareOfColor = Color_1.Color.YELLOW;
-        this.squareArray[30].occupyingPiece = PieceHolder_1.default.YELLOW;
+        //this.squareArray[30].occupyingPiece= PieceHolder.YELLOW;
         this.squareArray[29].isFinalSquareOfColor = Color_1.Color.YELLOW;
     };
     Board.prototype.fillColouredSquareArrays = function () {
@@ -333,8 +333,6 @@ var GameController = /** @class */ (function () {
         else {
             this.movePawn(resultingPosition);
         }
-        this.gameState.currentTurnColor = this.gameState.currentTurnColor == 3 ? 0 : this.gameState.currentTurnColor + 1;
-        this.iterateTurns();
     };
     GameController.prototype.clickOnBoardToChoosePawn = function (e) {
         this.mouseX = e.clientX - 10;
@@ -355,6 +353,7 @@ var GameController = /** @class */ (function () {
         else {
             this.gameState.myBoard.squareArray[this.clickedPawnIndex].occupyingPiece = PieceHolder_1.default.NONE;
             this.gameState.myBoard.squareArray[resultPos].occupyingPiece = PieceHolder_1.default.returnPieceOfColor(this.gameState.currentTurnColor);
+            this.moveToNextTurn();
         }
     };
     GameController.prototype.movePawnToFinalRow = function () {
@@ -363,6 +362,11 @@ var GameController = /** @class */ (function () {
         var firstFreeSpotOnFinalRow = 3 - this.gameState.myBoard.getNumberOfPawnsOnEndRowOfColor(c);
         this.gameState.myBoard.squareArray[this.clickedPawnIndex].occupyingPiece = PieceHolder_1.default.NONE;
         this.gameState.myBoard.getSquareArrayOfColor(c)[firstFreeSpotOnFinalRow].occupyingPiece = PieceHolder_1.default.returnPieceOfColor(c);
+        this.moveToNextTurn();
+    };
+    GameController.prototype.moveToNextTurn = function () {
+        this.gameState.currentTurnColor = this.gameState.currentTurnColor == 3 ? 0 : this.gameState.currentTurnColor + 1;
+        this.iterateTurns();
     };
     GameController.prototype.passedFinalSquare = function (previousIndex, c) {
         var finalSquareOfColor = Board_1.default.getFinalSquareOfColor(this.gameState.currentTurnColor);
@@ -405,13 +409,22 @@ var GameGUI = /** @class */ (function () {
     function GameGUI() {
     }
     GameGUI.drawGameState = function (GS) {
+        document.getElementById("rolledNumber").innerHTML = "";
+        document.getElementById("buttonContainer").innerHTML = "";
         var colorString = Color_1.Color[GS.currentTurnColor];
         document.getElementById("turnIndicator").innerHTML = colorString + "'s turn!";
-        if (GS.dieRolled) {
-            document.getElementById("rolledNumber").innerHTML = "You have rolled a " + GS.rolledNumber + ". Please select a piece to move.";
+        if (GS.myBoard.getNumberOfPawnsOnBoardOfColor(GS.currentTurnColor) == 0) {
+            if (GS.rolledNumber == 6) {
+                var str = "You rolled a 6! You get a new pawn.";
+            }
+            else {
+                var str = "You have currently have no pawns on the board. You will get a pawn when you roll a 6.";
+                document.getElementById("rolledNumber").innerHTML = str;
+                document.getElementById("buttonContainer").innerHTML = "<button onclick='gc.moveToNextTurn()'>ok</button>";
+            }
         }
         else {
-            document.getElementById("rolledNumber").innerHTML = "";
+            document.getElementById("rolledNumber").innerHTML = "You have rolled a " + GS.rolledNumber + ". Please select a piece to move.";
         }
         console.log("drawGameState is called");
         var canvas = document.getElementById("myCanvas");
