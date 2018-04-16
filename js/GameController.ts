@@ -6,15 +6,18 @@ import Square from "./Square";
 import GameState from "./GameState";
 import GameGUI from "./GameGUI";
 
-class GameController {
+export default class GameController {
     mouseX;
     mouseY;
     gameState : GameState;
     gameStateArray : GameState[];
     gameover : boolean;
-    canvasElement = document.getElementById("myCanvas");
-    pawnClicked = false;
-    clickedPawnIndex = 0;
+    clickedPawnIndex : number;
+    myGameGUI : GameGUI;
+
+    constructor() {
+        this.clickedPawnIndex = 0;
+    }
 
     public initialize(): void {
         let board : Board = new Board();
@@ -22,34 +25,27 @@ class GameController {
     }
 
     public iterateTurns(): void {
-        GameGUI.drawGameState(this.gameState);
+        this.myGameGUI.drawGameState(this.gameState);
         this.rollDie();
-        GameGUI.drawGameState(this.gameState);
-
-        // if (!this.gameover) {
-        //     this.iterateTurns(newGS);
-        // }
+        this.myGameGUI.drawGameState(this.gameState);
     }
 
     private rollDie(): void{
         let roll = Math.floor(Math.random() * 6) + 1;
         if (roll == 6) {
-                if (this.gameState.myBoard.getNumberOfPawnsOnBoardOfColor(this.gameState.currentTurnColor)<4) {
-                    let startSquare = Board.getStartingSquareOfColor(this.gameState.currentTurnColor); 
-                    this.gameState.myBoard.squareArray[startSquare].occupyingPiece = PieceHolder.returnPieceOfColor(this.gameState.currentTurnColor);
-                }
+            if (this.gameState.myBoard.getNumberOfPawnsOnBoardOfColor(this.gameState.currentTurnColor) < 4) {
+                let startSquare = Board.getStartingSquareOfColor(this.gameState.currentTurnColor); 
+                this.gameState.myBoard.squareArray[startSquare].occupyingPiece = PieceHolder.returnPieceOfColor(this.gameState.currentTurnColor);
+            }
         }
         this.gameState = new GameState(this.gameState.myBoard,this.gameState.currentTurnColor, true, roll);
     }
 
     private selectPawn(): void {
-     
-        console.log("a pawn is clicked!");
         const rolledPluscurrent = this.clickedPawnIndex + this.gameState.rolledNumber;
         const resultingPosition = rolledPluscurrent > 39 ?  rolledPluscurrent - 39 : rolledPluscurrent;
-        const finalSquareOfColor = Board.getFinalSquareOfColor(this.gameState.currentTurnColor);
 
-        if (this.passedFinalSquare(this.clickedPawnIndex, this.gameState.currentTurnColor)) {
+        if (Board.passedFinalSquareOfColor(this.gameState.currentTurnColor, this.clickedPawnIndex, this.gameState.rolledNumber)) {
             this.movePawnToFinalRow();
         } else {
            this.movePawn(resultingPosition);
@@ -60,10 +56,7 @@ class GameController {
         this.mouseX = e.clientX - 10;
         this.mouseY = e.clientY - 10;
         let clickedSquareIndex = this.gameState.myBoard.getClickedSquareIndex(this.mouseX, this.mouseY);
-        console.log("clicked square index" + clickedSquareIndex);
-
         let clickedPiece : Piece = this.gameState.myBoard.squareArray[clickedSquareIndex].occupyingPiece;
-        console.log(clickedPiece);
 
         if (clickedPiece.color === this.gameState.currentTurnColor) {       
             this.clickedPawnIndex = clickedSquareIndex;   
@@ -94,27 +87,5 @@ class GameController {
         this.gameState.currentTurnColor = this.gameState.currentTurnColor == 3 ? 0 : this.gameState.currentTurnColor + 1;
         this.iterateTurns();
     }
-
-    private passedFinalSquare(previousIndex : number, c : Color): boolean {
-        let finalSquareOfColor = Board.getFinalSquareOfColor(this.gameState.currentTurnColor);
-
-        if (c == Color.RED) {
-            if (previousIndex + this.gameState.rolledNumber > this.gameState.NR_OF_SQUARES_IN_BOARD) {
-                return true;
-            }
-        } else {
-            if (finalSquareOfColor >= previousIndex && finalSquareOfColor < previousIndex + this.gameState.rolledNumber) {
-                return true;
-            }
-        }
-        return false;
-    }
 }
 
-export const gc : GameController = new GameController();
-gc.initialize();
-gc.iterateTurns();
-
-document.getElementById("myCanvas").addEventListener("click", event => { gc.clickOnBoardToChoosePawn(event); });
-
-window["gc"] = gc;

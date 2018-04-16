@@ -5,7 +5,7 @@ import Square from "./Square";
 
 export default class Board {
     squareArray : Square[]= [];
-    cornerSequence : String[] = [
+    private readonly CORNER_SEQUENCE : String[] = [
         "E5", "N4", "E2", "S4", "E4", "S2", "W4", "S4", "W2", "N4", "W4", "N1"
     ];
 
@@ -14,19 +14,30 @@ export default class Board {
     greenSquareArray : ColouredSquare[] = [];
     yellowSquareArray : ColouredSquare[] = [];
 
+    readonly RED_START: number = 0;
+    readonly RED_FINAL: number = 39;
+    readonly BLUE_START: number = 10;
+    readonly BLUE_FINAL: number = 9;
+    readonly GREEN_START : number = 20;
+    readonly GREEN_FINAL : number = 19;
+    readonly YELLOW_START : number = 30;
+    readonly YELLOW_FINAL : number = 29;
+
+    readonly SQUARE_SIZE : number = 50;
+
+
     constructor() {
         this.fillSquareArray();
-        this.fillColouredSquareArrays();
-       // this.piecesOnBoard();       
+        this.fillColouredSquareArrays();       
     }
 
-        fillSquareArray() {
+    private fillSquareArray() {
             let x : number = -1;
             let y : number = 4;
             let currentCornerSequence = 0;
             
             for(var i = 0; i < 40; i++) {
-                let dir = this.cornerSequence[currentCornerSequence];
+                let dir = this.CORNER_SEQUENCE[currentCornerSequence];
     
                 let dirLetter = dir.substr(0,1);
                 let dirNumber : number = parseInt(dir.substr(1,1));
@@ -45,50 +56,51 @@ export default class Board {
                 }
     
                 dirNumber = dirNumber -1;
-                this.cornerSequence[currentCornerSequence] = dirLetter + String(dirNumber);
+                this.CORNER_SEQUENCE[currentCornerSequence] = dirLetter + String(dirNumber);
                 
                 if (dirNumber <1 ) {
                     currentCornerSequence++;
                 }
              
-                this.squareArray[i] = new Square(PieceHolder.NONE, x*50,y*50, Color.NONE);
+                this.squareArray[i] = new Square(PieceHolder.NONE, x*this.SQUARE_SIZE, y*this.SQUARE_SIZE, Color.NONE);
         }
 
-        this.squareArray[0].isStartingSquareOfColor = Color.RED;
-        //this.squareArray[0].occupyingPiece = PieceHolder.RED;
-        this.squareArray[39].isFinalSquareOfColor = Color.RED;
+        this.squareArray[this.RED_START].isStartingSquareOfColor = Color.RED;
+        this.squareArray[this.RED_START].occupyingPiece = PieceHolder.RED;
+        this.squareArray[this.RED_FINAL].isFinalSquareOfColor = Color.RED;
 
-        this.squareArray[10].isStartingSquareOfColor = Color.BLUE;
-        //this.squareArray[10].occupyingPiece = PieceHolder.BLUE;
-        this.squareArray[9].isFinalSquareOfColor = Color.BLUE;
+        this.squareArray[this.BLUE_START].isStartingSquareOfColor = Color.BLUE;
+        this.squareArray[this.BLUE_START].occupyingPiece = PieceHolder.BLUE;
+        this.squareArray[this.BLUE_FINAL].isFinalSquareOfColor = Color.BLUE;
 
-        this.squareArray[20].isStartingSquareOfColor = Color.GREEN;
-        //this.squareArray[20].occupyingPiece = PieceHolder.GREEN;
-        this.squareArray[19].isFinalSquareOfColor = Color.GREEN;
+        this.squareArray[this.GREEN_START].isStartingSquareOfColor = Color.GREEN;
+        this.squareArray[this.GREEN_START].occupyingPiece = PieceHolder.GREEN;
+        this.squareArray[this.GREEN_FINAL].isFinalSquareOfColor = Color.GREEN;
 
-        this.squareArray[30].isStartingSquareOfColor= Color.YELLOW;
-        //this.squareArray[30].occupyingPiece= PieceHolder.YELLOW;
-        this.squareArray[29].isFinalSquareOfColor= Color.YELLOW;
+        this.squareArray[this.YELLOW_START].isStartingSquareOfColor = Color.YELLOW;
+        this.squareArray[this.YELLOW_START].occupyingPiece = PieceHolder.YELLOW;
+        this.squareArray[this.YELLOW_FINAL].isFinalSquareOfColor = Color.YELLOW;
     }
 
-    fillColouredSquareArrays() {
+    private fillColouredSquareArrays() {
         //RED
         for (var i =0; i < 4; i++) {
-            this.redSquareArray[i] = new ColouredSquare(PieceHolder.NONE,50 + i *50 ,5 * 50, Color.RED);
-            this.blueSquareArray[i] = new ColouredSquare(PieceHolder.NONE,5 * 50 , 50 + i *50, Color.BLUE);
-            this.greenSquareArray[i] = new ColouredSquare(PieceHolder.NONE,9*50 - i * 50, 5 * 50, Color.BLUE);
-            this.yellowSquareArray[i] = new ColouredSquare(PieceHolder.NONE,5*50, 9 * 50 - i *50, Color.YELLOW);
+            this.redSquareArray[i] = new ColouredSquare(PieceHolder.NONE, this.SQUARE_SIZE + i * this.SQUARE_SIZE ,5 * this.SQUARE_SIZE, Color.RED);
+            this.blueSquareArray[i] = new ColouredSquare(PieceHolder.NONE,5 * this.SQUARE_SIZE , 50 + i *this.SQUARE_SIZE, Color.BLUE);
+            this.greenSquareArray[i] = new ColouredSquare(PieceHolder.NONE,9*this.SQUARE_SIZE - i * this.SQUARE_SIZE, 5 * this.SQUARE_SIZE, Color.BLUE);
+            this.yellowSquareArray[i] = new ColouredSquare(PieceHolder.NONE, 5*this.SQUARE_SIZE, 9 * 50 - i *this.SQUARE_SIZE, Color.YELLOW);
         }
     }
 
     public getClickedSquareIndex(x: number, y: number): number {       
         for (var i = 0; i < this.squareArray.length; i++) {
             let s: Square = this.squareArray[i];
-            if (x > s.xPos && x < s.xPos + 50 && y > s.yPos && y < s.yPos + 50) {
+            if (x > s.xPos && x < s.xPos + this.SQUARE_SIZE && y > s.yPos && y < s.yPos + this.SQUARE_SIZE) {
+                console.log("x: " + x + " y: " + y + " clicked square: " + i);
                 return i;
             }
         }
-        return 0;
+        return -1;
     }
 
     public getNumberOfPawnsOnBoardOfColor(c : Color) {
@@ -125,13 +137,25 @@ export default class Board {
         if (c == Color.YELLOW) return 30;
     }
 
-    public static getFinalSquareOfColor(c: Color) {
-        if (c == Color.RED) return 39;
-        if (c == Color.BLUE) return 9;
-        if (c == Color.GREEN) return 19;
-        if (c == Color.YELLOW) return 29;
-    }
+    public static passedFinalSquareOfColor(c: Color, previousIndex : number, roll : number): boolean {
+        let finalSquareOfColor;
+        if (c == Color.RED) finalSquareOfColor = 39;
+        if (c == Color.BLUE) finalSquareOfColor = 9;
+        if (c == Color.GREEN) finalSquareOfColor = 19;
+        if (c == Color.YELLOW) finalSquareOfColor = 29;
 
+        if (c == Color.RED) {
+            if (previousIndex + roll > 39) {
+                return true;
+            }
+        } else {
+            if (finalSquareOfColor >= previousIndex && finalSquareOfColor < previousIndex + roll) {
+                return true;
+            }
+        }
+        return false;
+    }
+        
     public getSquareArrayOfColor(c: Color) {
         if (c == Color.RED) return this.redSquareArray;
         if (c == Color.BLUE) return this.blueSquareArray;

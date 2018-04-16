@@ -6,7 +6,7 @@ import GameState from "./GameState";
 export default class GameGUI {
     boardToBeDrawn: Board;
 
-    public static drawGameState(GS: GameState): void {
+    public drawGameState(GS: GameState): void {
 
         document.getElementById("rolledNumber").innerHTML = "";
         document.getElementById("buttonContainer").innerHTML = "";
@@ -25,8 +25,7 @@ export default class GameGUI {
         } else {
                 document.getElementById("rolledNumber").innerHTML = "You have rolled a " + GS.rolledNumber + ". Please select a piece to move.";
         }        
-  
-        console.log("drawGameState is called");
+
         var canvas = <HTMLCanvasElement> document.getElementById("myCanvas");  
         var ctx = canvas.getContext("2d"); 
 

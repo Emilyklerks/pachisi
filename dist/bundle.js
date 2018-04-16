@@ -66,7 +66,7 @@
 /******/
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = "./js/GameController.ts");
+/******/ 	return __webpack_require__(__webpack_require__.s = "./js/main.ts");
 /******/ })
 /************************************************************************/
 /******/ ({
@@ -88,23 +88,31 @@ var Square_1 = __webpack_require__(/*! ./Square */ "./js/Square.ts");
 var Board = /** @class */ (function () {
     function Board() {
         this.squareArray = [];
-        this.cornerSequence = [
+        this.CORNER_SEQUENCE = [
             "E5", "N4", "E2", "S4", "E4", "S2", "W4", "S4", "W2", "N4", "W4", "N1"
         ];
         this.redSquareArray = [];
         this.blueSquareArray = [];
         this.greenSquareArray = [];
         this.yellowSquareArray = [];
+        this.RED_START = 0;
+        this.RED_FINAL = 39;
+        this.BLUE_START = 10;
+        this.BLUE_FINAL = 9;
+        this.GREEN_START = 20;
+        this.GREEN_FINAL = 19;
+        this.YELLOW_START = 30;
+        this.YELLOW_FINAL = 29;
+        this.SQUARE_SIZE = 50;
         this.fillSquareArray();
         this.fillColouredSquareArrays();
-        // this.piecesOnBoard();       
     }
     Board.prototype.fillSquareArray = function () {
         var x = -1;
         var y = 4;
         var currentCornerSequence = 0;
         for (var i = 0; i < 40; i++) {
-            var dir = this.cornerSequence[currentCornerSequence];
+            var dir = this.CORNER_SEQUENCE[currentCornerSequence];
             var dirLetter = dir.substr(0, 1);
             var dirNumber = parseInt(dir.substr(1, 1));
             if (dirLetter == 'E') {
@@ -120,42 +128,43 @@ var Board = /** @class */ (function () {
                 x -= 1;
             }
             dirNumber = dirNumber - 1;
-            this.cornerSequence[currentCornerSequence] = dirLetter + String(dirNumber);
+            this.CORNER_SEQUENCE[currentCornerSequence] = dirLetter + String(dirNumber);
             if (dirNumber < 1) {
                 currentCornerSequence++;
             }
-            this.squareArray[i] = new Square_1.default(PieceHolder_1.default.NONE, x * 50, y * 50, Color_1.Color.NONE);
+            this.squareArray[i] = new Square_1.default(PieceHolder_1.default.NONE, x * this.SQUARE_SIZE, y * this.SQUARE_SIZE, Color_1.Color.NONE);
         }
-        this.squareArray[0].isStartingSquareOfColor = Color_1.Color.RED;
-        //this.squareArray[0].occupyingPiece = PieceHolder.RED;
-        this.squareArray[39].isFinalSquareOfColor = Color_1.Color.RED;
-        this.squareArray[10].isStartingSquareOfColor = Color_1.Color.BLUE;
-        //this.squareArray[10].occupyingPiece = PieceHolder.BLUE;
-        this.squareArray[9].isFinalSquareOfColor = Color_1.Color.BLUE;
-        this.squareArray[20].isStartingSquareOfColor = Color_1.Color.GREEN;
-        //this.squareArray[20].occupyingPiece = PieceHolder.GREEN;
-        this.squareArray[19].isFinalSquareOfColor = Color_1.Color.GREEN;
-        this.squareArray[30].isStartingSquareOfColor = Color_1.Color.YELLOW;
-        //this.squareArray[30].occupyingPiece= PieceHolder.YELLOW;
-        this.squareArray[29].isFinalSquareOfColor = Color_1.Color.YELLOW;
+        this.squareArray[this.RED_START].isStartingSquareOfColor = Color_1.Color.RED;
+        this.squareArray[this.RED_START].occupyingPiece = PieceHolder_1.default.RED;
+        this.squareArray[this.RED_FINAL].isFinalSquareOfColor = Color_1.Color.RED;
+        this.squareArray[this.BLUE_START].isStartingSquareOfColor = Color_1.Color.BLUE;
+        this.squareArray[this.BLUE_START].occupyingPiece = PieceHolder_1.default.BLUE;
+        this.squareArray[this.BLUE_FINAL].isFinalSquareOfColor = Color_1.Color.BLUE;
+        this.squareArray[this.GREEN_START].isStartingSquareOfColor = Color_1.Color.GREEN;
+        this.squareArray[this.GREEN_START].occupyingPiece = PieceHolder_1.default.GREEN;
+        this.squareArray[this.GREEN_FINAL].isFinalSquareOfColor = Color_1.Color.GREEN;
+        this.squareArray[this.YELLOW_START].isStartingSquareOfColor = Color_1.Color.YELLOW;
+        this.squareArray[this.YELLOW_START].occupyingPiece = PieceHolder_1.default.YELLOW;
+        this.squareArray[this.YELLOW_FINAL].isFinalSquareOfColor = Color_1.Color.YELLOW;
     };
     Board.prototype.fillColouredSquareArrays = function () {
         //RED
         for (var i = 0; i < 4; i++) {
-            this.redSquareArray[i] = new ColouredSquare_1.default(PieceHolder_1.default.NONE, 50 + i * 50, 5 * 50, Color_1.Color.RED);
-            this.blueSquareArray[i] = new ColouredSquare_1.default(PieceHolder_1.default.NONE, 5 * 50, 50 + i * 50, Color_1.Color.BLUE);
-            this.greenSquareArray[i] = new ColouredSquare_1.default(PieceHolder_1.default.NONE, 9 * 50 - i * 50, 5 * 50, Color_1.Color.BLUE);
-            this.yellowSquareArray[i] = new ColouredSquare_1.default(PieceHolder_1.default.NONE, 5 * 50, 9 * 50 - i * 50, Color_1.Color.YELLOW);
+            this.redSquareArray[i] = new ColouredSquare_1.default(PieceHolder_1.default.NONE, this.SQUARE_SIZE + i * this.SQUARE_SIZE, 5 * this.SQUARE_SIZE, Color_1.Color.RED);
+            this.blueSquareArray[i] = new ColouredSquare_1.default(PieceHolder_1.default.NONE, 5 * this.SQUARE_SIZE, 50 + i * this.SQUARE_SIZE, Color_1.Color.BLUE);
+            this.greenSquareArray[i] = new ColouredSquare_1.default(PieceHolder_1.default.NONE, 9 * this.SQUARE_SIZE - i * this.SQUARE_SIZE, 5 * this.SQUARE_SIZE, Color_1.Color.BLUE);
+            this.yellowSquareArray[i] = new ColouredSquare_1.default(PieceHolder_1.default.NONE, 5 * this.SQUARE_SIZE, 9 * 50 - i * this.SQUARE_SIZE, Color_1.Color.YELLOW);
         }
     };
     Board.prototype.getClickedSquareIndex = function (x, y) {
         for (var i = 0; i < this.squareArray.length; i++) {
             var s = this.squareArray[i];
-            if (x > s.xPos && x < s.xPos + 50 && y > s.yPos && y < s.yPos + 50) {
+            if (x > s.xPos && x < s.xPos + this.SQUARE_SIZE && y > s.yPos && y < s.yPos + this.SQUARE_SIZE) {
+                console.log("x: " + x + " y: " + y + " clicked square: " + i);
                 return i;
             }
         }
-        return 0;
+        return -1;
     };
     Board.prototype.getNumberOfPawnsOnBoardOfColor = function (c) {
         var count = 0;
@@ -195,15 +204,27 @@ var Board = /** @class */ (function () {
         if (c == Color_1.Color.YELLOW)
             return 30;
     };
-    Board.getFinalSquareOfColor = function (c) {
+    Board.passedFinalSquareOfColor = function (c, previousIndex, roll) {
+        var finalSquareOfColor;
         if (c == Color_1.Color.RED)
-            return 39;
+            finalSquareOfColor = 39;
         if (c == Color_1.Color.BLUE)
-            return 9;
+            finalSquareOfColor = 9;
         if (c == Color_1.Color.GREEN)
-            return 19;
+            finalSquareOfColor = 19;
         if (c == Color_1.Color.YELLOW)
-            return 29;
+            finalSquareOfColor = 29;
+        if (c == Color_1.Color.RED) {
+            if (previousIndex + roll > 39) {
+                return true;
+            }
+        }
+        else {
+            if (finalSquareOfColor >= previousIndex && finalSquareOfColor < previousIndex + roll) {
+                return true;
+            }
+        }
+        return false;
     };
     Board.prototype.getSquareArrayOfColor = function (c) {
         if (c == Color_1.Color.RED)
@@ -296,8 +317,6 @@ var GameState_1 = __webpack_require__(/*! ./GameState */ "./js/GameState.ts");
 var GameGUI_1 = __webpack_require__(/*! ./GameGUI */ "./js/GameGUI.ts");
 var GameController = /** @class */ (function () {
     function GameController() {
-        this.canvasElement = document.getElementById("myCanvas");
-        this.pawnClicked = false;
         this.clickedPawnIndex = 0;
     }
     GameController.prototype.initialize = function () {
@@ -308,9 +327,6 @@ var GameController = /** @class */ (function () {
         GameGUI_1.default.drawGameState(this.gameState);
         this.rollDie();
         GameGUI_1.default.drawGameState(this.gameState);
-        // if (!this.gameover) {
-        //     this.iterateTurns(newGS);
-        // }
     };
     GameController.prototype.rollDie = function () {
         var roll = Math.floor(Math.random() * 6) + 1;
@@ -323,11 +339,9 @@ var GameController = /** @class */ (function () {
         this.gameState = new GameState_1.default(this.gameState.myBoard, this.gameState.currentTurnColor, true, roll);
     };
     GameController.prototype.selectPawn = function () {
-        console.log("a pawn is clicked!");
         var rolledPluscurrent = this.clickedPawnIndex + this.gameState.rolledNumber;
         var resultingPosition = rolledPluscurrent > 39 ? rolledPluscurrent - 39 : rolledPluscurrent;
-        var finalSquareOfColor = Board_1.default.getFinalSquareOfColor(this.gameState.currentTurnColor);
-        if (this.passedFinalSquare(this.clickedPawnIndex, this.gameState.currentTurnColor)) {
+        if (Board_1.default.passedFinalSquareOfColor(this.gameState.currentTurnColor, this.clickedPawnIndex, this.gameState.rolledNumber)) {
             this.movePawnToFinalRow();
         }
         else {
@@ -338,9 +352,7 @@ var GameController = /** @class */ (function () {
         this.mouseX = e.clientX - 10;
         this.mouseY = e.clientY - 10;
         var clickedSquareIndex = this.gameState.myBoard.getClickedSquareIndex(this.mouseX, this.mouseY);
-        console.log("clicked square index" + clickedSquareIndex);
         var clickedPiece = this.gameState.myBoard.squareArray[clickedSquareIndex].occupyingPiece;
-        console.log(clickedPiece);
         if (clickedPiece.color === this.gameState.currentTurnColor) {
             this.clickedPawnIndex = clickedSquareIndex;
             this.selectPawn();
@@ -368,27 +380,9 @@ var GameController = /** @class */ (function () {
         this.gameState.currentTurnColor = this.gameState.currentTurnColor == 3 ? 0 : this.gameState.currentTurnColor + 1;
         this.iterateTurns();
     };
-    GameController.prototype.passedFinalSquare = function (previousIndex, c) {
-        var finalSquareOfColor = Board_1.default.getFinalSquareOfColor(this.gameState.currentTurnColor);
-        if (c == Color_1.Color.RED) {
-            if (previousIndex + this.gameState.rolledNumber > this.gameState.NR_OF_SQUARES_IN_BOARD) {
-                return true;
-            }
-        }
-        else {
-            if (finalSquareOfColor >= previousIndex && finalSquareOfColor < previousIndex + this.gameState.rolledNumber) {
-                return true;
-            }
-        }
-        return false;
-    };
     return GameController;
 }());
-exports.gc = new GameController();
-exports.gc.initialize();
-exports.gc.iterateTurns();
-document.getElementById("myCanvas").addEventListener("click", function (event) { exports.gc.clickOnBoardToChoosePawn(event); });
-window["gc"] = exports.gc;
+exports.default = GameController;
 
 
 /***/ }),
@@ -426,7 +420,6 @@ var GameGUI = /** @class */ (function () {
         else {
             document.getElementById("rolledNumber").innerHTML = "You have rolled a " + GS.rolledNumber + ". Please select a piece to move.";
         }
-        console.log("drawGameState is called");
         var canvas = document.getElementById("myCanvas");
         var ctx = canvas.getContext("2d");
         //Draw the normal board
@@ -633,6 +626,30 @@ var Square = /** @class */ (function () {
     return Square;
 }());
 exports.default = Square;
+
+
+/***/ }),
+
+/***/ "./js/main.ts":
+/*!********************!*\
+  !*** ./js/main.ts ***!
+  \********************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var GameController_1 = __webpack_require__(/*! ./GameController */ "./js/GameController.ts");
+function main() {
+    var gc = new GameController_1.default();
+    gc.initialize();
+    gc.iterateTurns();
+    document.getElementById("myCanvas").addEventListener("click", function (event) { gc.clickOnBoardToChoosePawn(event); });
+    window["gc"] = gc;
+}
+exports.default = main;
+main();
 
 
 /***/ })
