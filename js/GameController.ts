@@ -13,7 +13,6 @@ export default class GameController {
     gameStateArray : GameState[];
     gameover : boolean;
     clickedPawnIndex : number;
-    myGameGUI : GameGUI;
 
     constructor() {
         this.clickedPawnIndex = 0;
@@ -24,13 +23,7 @@ export default class GameController {
         this.gameState = new GameState(board, Color.RED);
     }
 
-    public iterateTurns(): void {
-        this.myGameGUI.drawGameState(this.gameState);
-        this.rollDie();
-        this.myGameGUI.drawGameState(this.gameState);
-    }
-
-    private rollDie(): void{
+    public rollDie(): void{
         let roll = Math.floor(Math.random() * 6) + 1;
         if (roll == 6) {
             if (this.gameState.myBoard.getNumberOfPawnsOnBoardOfColor(this.gameState.currentTurnColor) < 4) {
@@ -41,18 +34,8 @@ export default class GameController {
         this.gameState = new GameState(this.gameState.myBoard,this.gameState.currentTurnColor, true, roll);
     }
 
-    private selectPawn(): void {
-        const rolledPluscurrent = this.clickedPawnIndex + this.gameState.rolledNumber;
-        const resultingPosition = rolledPluscurrent > 39 ?  rolledPluscurrent - 39 : rolledPluscurrent;
-
-        if (Board.passedFinalSquareOfColor(this.gameState.currentTurnColor, this.clickedPawnIndex, this.gameState.rolledNumber)) {
-            this.movePawnToFinalRow();
-        } else {
-           this.movePawn(resultingPosition);
-        }
-    }
-
-    public clickOnBoardToChoosePawn(e) : void {   
+    public clickOnBoardToChoosePawn(e) : void {
+        console.log(e);   
         this.mouseX = e.clientX - 10;
         this.mouseY = e.clientY - 10;
         let clickedSquareIndex = this.gameState.myBoard.getClickedSquareIndex(this.mouseX, this.mouseY);
@@ -61,6 +44,17 @@ export default class GameController {
         if (clickedPiece.color === this.gameState.currentTurnColor) {       
             this.clickedPawnIndex = clickedSquareIndex;   
             this.selectPawn();       
+        }
+    }
+
+    private selectPawn(): void {
+        const rolledPluscurrent = this.clickedPawnIndex + this.gameState.rolledNumber;
+        const resultingPosition = rolledPluscurrent > 39 ?  rolledPluscurrent - 39 : rolledPluscurrent;
+
+        if (Board.passedFinalSquareOfColor(this.gameState.currentTurnColor, this.clickedPawnIndex, this.gameState.rolledNumber)) {
+            this.movePawnToFinalRow();
+        } else {
+           this.movePawn(resultingPosition);
         }
     }
 
@@ -85,7 +79,8 @@ export default class GameController {
 
     public moveToNextTurn() {
         this.gameState.currentTurnColor = this.gameState.currentTurnColor == 3 ? 0 : this.gameState.currentTurnColor + 1;
-        this.iterateTurns();
+        this.gameState.rolledNumber = 0;
+        this.rollDie();
     }
 }
 

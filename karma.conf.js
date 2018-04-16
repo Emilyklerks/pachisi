@@ -2,11 +2,11 @@
 // Generated on Mon Apr 09 2018 16:42:54 GMT+0200 (W. Europe Daylight Time)
 
 module.exports = function(config) {
+     
   config.set({
 
     // base path that will be used to resolve all patterns (eg. files, exclude)
     basePath: '',
-
 
     // frameworks to use
     // available frameworks: https://npmjs.org/browse/keyword/karma-adapter
@@ -15,14 +15,22 @@ module.exports = function(config) {
 
     // list of files / patterns to load in the browser
     files: [
-      "test/index.js"
+      "test/index.js",
+      {
+        pattern: 'index.html',
+      },
     ],
-
 
     // preprocess matching files before serving them to the browser
     // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
+    jsonFixturesPreprocessor: {
+      variableName: '__json__'
+    },
+
     preprocessors: {
-      "test/index.js": "webpack"
+      "test/index.js": "webpack",
+      '**/index.html'   : ['html2js'],
+      '**/*.json'     :   ['json_fixtures']
     },
 
     webpack: require("./webpack.config.js"),

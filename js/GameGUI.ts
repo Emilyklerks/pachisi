@@ -4,17 +4,15 @@ import PieceHolder from "./PieceHolder";
 import GameState from "./GameState";
 
 export default class GameGUI {
-    boardToBeDrawn: Board;
 
-    public drawGameState(GS: GameState): void {
-
+    public static drawGameState(GS: GameState): void {
         document.getElementById("rolledNumber").innerHTML = "";
         document.getElementById("buttonContainer").innerHTML = "";
 
         const colorString = Color[GS.currentTurnColor];
         document.getElementById("turnIndicator").innerHTML = colorString + "'s turn!";
         
-        if (GS.myBoard.getNumberOfPawnsOnBoardOfColor(GS.currentTurnColor)==0) {
+        if (GS.myBoard.getNumberOfPawnsOnBoardOfColor(GS.currentTurnColor) == 0) {
             if (GS.rolledNumber == 6) {
                 let str = "You rolled a 6! You get a new pawn.";
             } else {

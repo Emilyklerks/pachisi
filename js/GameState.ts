@@ -17,5 +17,4 @@ export default class GameState {
         this.dieRolled = isDieRolled;
         this.rolledNumber = newRolledNumber;
     }
-
 }

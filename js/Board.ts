@@ -66,19 +66,19 @@ export default class Board {
         }
 
         this.squareArray[this.RED_START].isStartingSquareOfColor = Color.RED;
-        this.squareArray[this.RED_START].occupyingPiece = PieceHolder.RED;
+        //this.squareArray[this.RED_START].occupyingPiece = PieceHolder.RED;
         this.squareArray[this.RED_FINAL].isFinalSquareOfColor = Color.RED;
 
         this.squareArray[this.BLUE_START].isStartingSquareOfColor = Color.BLUE;
-        this.squareArray[this.BLUE_START].occupyingPiece = PieceHolder.BLUE;
+        //this.squareArray[this.BLUE_START].occupyingPiece = PieceHolder.BLUE;
         this.squareArray[this.BLUE_FINAL].isFinalSquareOfColor = Color.BLUE;
 
         this.squareArray[this.GREEN_START].isStartingSquareOfColor = Color.GREEN;
-        this.squareArray[this.GREEN_START].occupyingPiece = PieceHolder.GREEN;
+        //this.squareArray[this.GREEN_START].occupyingPiece = PieceHolder.GREEN;
         this.squareArray[this.GREEN_FINAL].isFinalSquareOfColor = Color.GREEN;
 
         this.squareArray[this.YELLOW_START].isStartingSquareOfColor = Color.YELLOW;
-        this.squareArray[this.YELLOW_START].occupyingPiece = PieceHolder.YELLOW;
+        //this.squareArray[this.YELLOW_START].occupyingPiece = PieceHolder.YELLOW;
         this.squareArray[this.YELLOW_FINAL].isFinalSquareOfColor = Color.YELLOW;
     }
 
@@ -96,7 +96,6 @@ export default class Board {
         for (var i = 0; i < this.squareArray.length; i++) {
             let s: Square = this.squareArray[i];
             if (x > s.xPos && x < s.xPos + this.SQUARE_SIZE && y > s.yPos && y < s.yPos + this.SQUARE_SIZE) {
-                console.log("x: " + x + " y: " + y + " clicked square: " + i);
                 return i;
             }
         }

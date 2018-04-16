@@ -135,16 +135,16 @@ var Board = /** @class */ (function () {
             this.squareArray[i] = new Square_1.default(PieceHolder_1.default.NONE, x * this.SQUARE_SIZE, y * this.SQUARE_SIZE, Color_1.Color.NONE);
         }
         this.squareArray[this.RED_START].isStartingSquareOfColor = Color_1.Color.RED;
-        this.squareArray[this.RED_START].occupyingPiece = PieceHolder_1.default.RED;
+        //this.squareArray[this.RED_START].occupyingPiece = PieceHolder.RED;
         this.squareArray[this.RED_FINAL].isFinalSquareOfColor = Color_1.Color.RED;
         this.squareArray[this.BLUE_START].isStartingSquareOfColor = Color_1.Color.BLUE;
-        this.squareArray[this.BLUE_START].occupyingPiece = PieceHolder_1.default.BLUE;
+        //this.squareArray[this.BLUE_START].occupyingPiece = PieceHolder.BLUE;
         this.squareArray[this.BLUE_FINAL].isFinalSquareOfColor = Color_1.Color.BLUE;
         this.squareArray[this.GREEN_START].isStartingSquareOfColor = Color_1.Color.GREEN;
-        this.squareArray[this.GREEN_START].occupyingPiece = PieceHolder_1.default.GREEN;
+        //this.squareArray[this.GREEN_START].occupyingPiece = PieceHolder.GREEN;
         this.squareArray[this.GREEN_FINAL].isFinalSquareOfColor = Color_1.Color.GREEN;
         this.squareArray[this.YELLOW_START].isStartingSquareOfColor = Color_1.Color.YELLOW;
-        this.squareArray[this.YELLOW_START].occupyingPiece = PieceHolder_1.default.YELLOW;
+        //this.squareArray[this.YELLOW_START].occupyingPiece = PieceHolder.YELLOW;
         this.squareArray[this.YELLOW_FINAL].isFinalSquareOfColor = Color_1.Color.YELLOW;
     };
     Board.prototype.fillColouredSquareArrays = function () {
@@ -160,7 +160,6 @@ var Board = /** @class */ (function () {
         for (var i = 0; i < this.squareArray.length; i++) {
             var s = this.squareArray[i];
             if (x > s.xPos && x < s.xPos + this.SQUARE_SIZE && y > s.yPos && y < s.yPos + this.SQUARE_SIZE) {
-                console.log("x: " + x + " y: " + y + " clicked square: " + i);
                 return i;
             }
         }
@@ -314,7 +313,6 @@ var Board_1 = __webpack_require__(/*! ./Board */ "./js/Board.ts");
 var Color_1 = __webpack_require__(/*! ./Color */ "./js/Color.ts");
 var PieceHolder_1 = __webpack_require__(/*! ./PieceHolder */ "./js/PieceHolder.ts");
 var GameState_1 = __webpack_require__(/*! ./GameState */ "./js/GameState.ts");
-var GameGUI_1 = __webpack_require__(/*! ./GameGUI */ "./js/GameGUI.ts");
 var GameController = /** @class */ (function () {
     function GameController() {
         this.clickedPawnIndex = 0;
@@ -322,11 +320,6 @@ var GameController = /** @class */ (function () {
     GameController.prototype.initialize = function () {
         var board = new Board_1.default();
         this.gameState = new GameState_1.default(board, Color_1.Color.RED);
-    };
-    GameController.prototype.iterateTurns = function () {
-        GameGUI_1.default.drawGameState(this.gameState);
-        this.rollDie();
-        GameGUI_1.default.drawGameState(this.gameState);
     };
     GameController.prototype.rollDie = function () {
         var roll = Math.floor(Math.random() * 6) + 1;
@@ -338,6 +331,17 @@ var GameController = /** @class */ (function () {
         }
         this.gameState = new GameState_1.default(this.gameState.myBoard, this.gameState.currentTurnColor, true, roll);
     };
+    GameController.prototype.clickOnBoardToChoosePawn = function (e) {
+        console.log(e);
+        this.mouseX = e.clientX - 10;
+        this.mouseY = e.clientY - 10;
+        var clickedSquareIndex = this.gameState.myBoard.getClickedSquareIndex(this.mouseX, this.mouseY);
+        var clickedPiece = this.gameState.myBoard.squareArray[clickedSquareIndex].occupyingPiece;
+        if (clickedPiece.color === this.gameState.currentTurnColor) {
+            this.clickedPawnIndex = clickedSquareIndex;
+            this.selectPawn();
+        }
+    };
     GameController.prototype.selectPawn = function () {
         var rolledPluscurrent = this.clickedPawnIndex + this.gameState.rolledNumber;
         var resultingPosition = rolledPluscurrent > 39 ? rolledPluscurrent - 39 : rolledPluscurrent;
@@ -346,16 +350,6 @@ var GameController = /** @class */ (function () {
         }
         else {
             this.movePawn(resultingPosition);
-        }
-    };
-    GameController.prototype.clickOnBoardToChoosePawn = function (e) {
-        this.mouseX = e.clientX - 10;
-        this.mouseY = e.clientY - 10;
-        var clickedSquareIndex = this.gameState.myBoard.getClickedSquareIndex(this.mouseX, this.mouseY);
-        var clickedPiece = this.gameState.myBoard.squareArray[clickedSquareIndex].occupyingPiece;
-        if (clickedPiece.color === this.gameState.currentTurnColor) {
-            this.clickedPawnIndex = clickedSquareIndex;
-            this.selectPawn();
         }
     };
     GameController.prototype.movePawn = function (resultPos) {
@@ -378,7 +372,8 @@ var GameController = /** @class */ (function () {
     };
     GameController.prototype.moveToNextTurn = function () {
         this.gameState.currentTurnColor = this.gameState.currentTurnColor == 3 ? 0 : this.gameState.currentTurnColor + 1;
-        this.iterateTurns();
+        this.gameState.rolledNumber = 0;
+        this.rollDie();
     };
     return GameController;
 }());
@@ -641,12 +636,17 @@ exports.default = Square;
 
 Object.defineProperty(exports, "__esModule", { value: true });
 var GameController_1 = __webpack_require__(/*! ./GameController */ "./js/GameController.ts");
+var GameGUI_1 = __webpack_require__(/*! ./GameGUI */ "./js/GameGUI.ts");
 function main() {
     var gc = new GameController_1.default();
     gc.initialize();
-    gc.iterateTurns();
+    gc.rollDie();
     document.getElementById("myCanvas").addEventListener("click", function (event) { gc.clickOnBoardToChoosePawn(event); });
+    window.setInterval(maindraw, 200);
     window["gc"] = gc;
+    function maindraw() {
+        GameGUI_1.default.drawGameState(gc.gameState);
+    }
 }
 exports.default = main;
 main();
