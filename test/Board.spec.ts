@@ -12,8 +12,7 @@ before(function() {
   });
 
 describe("Board", () => {
-    it("Should return the redSquareArray when using getSquaraArrayOfColor(RED)", () => {
-        
+    it("Should return the redSquareArray when using getSquaraArrayOfColor(RED)", () => {        
         expect(testBoard.getSquareArrayOfColor(Color.RED)).to.equal(testBoard.redSquareArray);
     })
 });

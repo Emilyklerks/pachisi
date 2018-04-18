@@ -6,7 +6,7 @@ import Board from "../js/Board";
 
 let testgc: GameController;
 
-before(function() {
+beforeEach(function() {
     testgc = new GameController();
     testgc.initialize();
   });
@@ -31,11 +31,13 @@ describe("GameController", () => {
  });
 
  describe("GameController", () => { 
-    it("After clicking on board to select a pawn, and selecting the first red pawn, the first square on the board should be empty", () => {
+    it("After clicking on board to select a pawn, and selecting the first red pawn, it should be moved by the rolled die number", () => {
         testgc.rollDie();
+        let roll : number = testgc.gameState.rolledNumber;
         let testEvent = new MouseEvent("click", {clientX: 20, clientY: 220});
-        testgc.clickOnBoardToChoosePawn(testEvent);
-        expect(testgc.gameState.myBoard.squareArray[0].occupyingPiece).to.equal(PieceHolder.NONE);
+        testgc.checkIfOwnPawnIsClicked(testEvent);
+        testgc.selectAndMovePawn();
+        expect(testgc.gameState.myBoard.squareArray[roll].occupyingPiece.color).to.equal(PieceHolder.RED.color);
      })
  });
 
@@ -45,7 +47,7 @@ describe("GameController", () => {
         testgc.rollDie();
         let testEvent = new MouseEvent("click", {clientX: 225, clientY: 525});
         let oldGS = testgc.gameState;
-        testgc.clickOnBoardToChoosePawn(testEvent);
+        testgc.checkIfOwnPawnIsClicked(testEvent);
         expect(testgc.gameState).to.equal(oldGS);
      })
  });
@@ -54,9 +56,11 @@ describe("GameController", () => {
     it("When GREEN's pawn is right before the final row, and we click on the pawn during GREEN's turn, green's final row should have a pawn on it.", () => {
         testgc.gameState.currentTurnColor = Color.GREEN;
         testgc.rollDie();
+        
         testgc.gameState.myBoard.squareArray[19].occupyingPiece = PieceHolder.GREEN;
         let testEvent = new MouseEvent("click", {clientX: 515, clientY: 275});
-        testgc.clickOnBoardToChoosePawn(testEvent);
+        testgc.checkIfOwnPawnIsClicked(testEvent);
+        testgc.selectAndMovePawn();
         expect(testgc.gameState.myBoard.getNumberOfPawnsOnEndRowOfColor(Color.GREEN)).to.equal(1);
      })
  });

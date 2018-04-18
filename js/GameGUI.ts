@@ -6,6 +6,7 @@ import GameState from "./GameState";
 export default class GameGUI {
 
     public static drawGameState(GS: GameState): void {
+        console.log(document);
         document.getElementById("rolledNumber").innerHTML = "";
         document.getElementById("buttonContainer").innerHTML = "";
 
@@ -18,7 +19,7 @@ export default class GameGUI {
             } else {
                 let str = "You have currently have no pawns on the board. You will get a pawn when you roll a 6.";
                 document.getElementById("rolledNumber").innerHTML = str;
-                document.getElementById("buttonContainer").innerHTML = "<button onclick='gc.moveToNextTurn()'>ok</button>";
+                document.getElementById("buttonContainer").innerHTML = "<button onclick='gc.moveToNextTurn();GameGUI.drawGameState(gc.gameState);'>ok</button>";
             }
         } else {
                 document.getElementById("rolledNumber").innerHTML = "You have rolled a " + GS.rolledNumber + ". Please select a piece to move.";

@@ -12,15 +12,19 @@ export default class GameController {
     gameState : GameState;
     gameStateArray : GameState[];
     gameover : boolean;
-    clickedPawnIndex : number;
-
-    constructor() {
-        this.clickedPawnIndex = 0;
-    }
-
+    clickedPawnIndex : number = 0;
+    
     public initialize(): void {
         let board : Board = new Board();
         this.gameState = new GameState(board, Color.RED);
+    }
+
+    public checkIfOwnPawnIsClicked(e): boolean {
+        if (this.gameState.myBoard.isClickedSquareOfColor(e.clientX,e.clientY, this.gameState.currentTurnColor)) {
+            this.clickedPawnIndex = this.gameState.myBoard.getClickedSquareIndex(e.clientX, e.clientY);
+            return true;
+        }
+        return false;
     }
 
     public rollDie(): void{
@@ -31,23 +35,10 @@ export default class GameController {
                 this.gameState.myBoard.squareArray[startSquare].occupyingPiece = PieceHolder.returnPieceOfColor(this.gameState.currentTurnColor);
             }
         }
-        this.gameState = new GameState(this.gameState.myBoard,this.gameState.currentTurnColor, true, roll);
+        this.gameState.rolledNumber= roll;
     }
 
-    public clickOnBoardToChoosePawn(e) : void {
-        console.log(e);   
-        this.mouseX = e.clientX - 10;
-        this.mouseY = e.clientY - 10;
-        let clickedSquareIndex = this.gameState.myBoard.getClickedSquareIndex(this.mouseX, this.mouseY);
-        let clickedPiece : Piece = this.gameState.myBoard.squareArray[clickedSquareIndex].occupyingPiece;
-
-        if (clickedPiece.color === this.gameState.currentTurnColor) {       
-            this.clickedPawnIndex = clickedSquareIndex;   
-            this.selectPawn();       
-        }
-    }
-
-    private selectPawn(): void {
+    public selectAndMovePawn(): void {
         const rolledPluscurrent = this.clickedPawnIndex + this.gameState.rolledNumber;
         const resultingPosition = rolledPluscurrent > 39 ?  rolledPluscurrent - 39 : rolledPluscurrent;
 
@@ -79,7 +70,6 @@ export default class GameController {
 
     public moveToNextTurn() {
         this.gameState.currentTurnColor = this.gameState.currentTurnColor == 3 ? 0 : this.gameState.currentTurnColor + 1;
-        this.gameState.rolledNumber = 0;
         this.rollDie();
     }
 }

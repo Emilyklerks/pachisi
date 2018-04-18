@@ -1,17 +1,22 @@
 import GameController from "./GameController";
 import GameGUI from "./GameGUI";
+import Piece from "./Piece";
 
-export default function main(): void { 
+function init() {
     const gc : GameController = new GameController();
     gc.initialize();
+    window["gc"] = gc; 
+    window["GameGUI"] = GameGUI; 
     gc.rollDie();
-    document.getElementById("myCanvas").addEventListener("click", event => { gc.clickOnBoardToChoosePawn(event); });
-    window.setInterval(maindraw, 200);
-    window["gc"] = gc;
-
-    function maindraw() : void {
-        GameGUI.drawGameState(gc.gameState);
-    }
+    GameGUI.drawGameState(gc.gameState); 
+    document.getElementById("myCanvas").addEventListener("click", event => { 
+        if (gc.checkIfOwnPawnIsClicked(event)) {
+            gc.selectAndMovePawn();
+            GameGUI.drawGameState(gc.gameState);
+        } 
+    });
 }
 
-main();
+init();
+
+

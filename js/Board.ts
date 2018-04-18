@@ -2,6 +2,7 @@ import { Color } from "./Color";
 import ColouredSquare from "./ColouredSquare";
 import PieceHolder from "./PieceHolder";
 import Square from "./Square";
+import Piece from "./Piece";
 
 export default class Board {
     squareArray : Square[]= [];
@@ -38,7 +39,6 @@ export default class Board {
             
             for(var i = 0; i < 40; i++) {
                 let dir = this.CORNER_SEQUENCE[currentCornerSequence];
-    
                 let dirLetter = dir.substr(0,1);
                 let dirNumber : number = parseInt(dir.substr(1,1));
           
@@ -66,24 +66,23 @@ export default class Board {
         }
 
         this.squareArray[this.RED_START].isStartingSquareOfColor = Color.RED;
-        //this.squareArray[this.RED_START].occupyingPiece = PieceHolder.RED;
+        this.squareArray[this.RED_START].occupyingPiece = PieceHolder.RED;
         this.squareArray[this.RED_FINAL].isFinalSquareOfColor = Color.RED;
 
         this.squareArray[this.BLUE_START].isStartingSquareOfColor = Color.BLUE;
-        //this.squareArray[this.BLUE_START].occupyingPiece = PieceHolder.BLUE;
+        this.squareArray[this.BLUE_START].occupyingPiece = PieceHolder.BLUE;
         this.squareArray[this.BLUE_FINAL].isFinalSquareOfColor = Color.BLUE;
 
         this.squareArray[this.GREEN_START].isStartingSquareOfColor = Color.GREEN;
-        //this.squareArray[this.GREEN_START].occupyingPiece = PieceHolder.GREEN;
+        this.squareArray[this.GREEN_START].occupyingPiece = PieceHolder.GREEN;
         this.squareArray[this.GREEN_FINAL].isFinalSquareOfColor = Color.GREEN;
 
         this.squareArray[this.YELLOW_START].isStartingSquareOfColor = Color.YELLOW;
-        //this.squareArray[this.YELLOW_START].occupyingPiece = PieceHolder.YELLOW;
+        this.squareArray[this.YELLOW_START].occupyingPiece = PieceHolder.YELLOW;
         this.squareArray[this.YELLOW_FINAL].isFinalSquareOfColor = Color.YELLOW;
     }
 
     private fillColouredSquareArrays() {
-        //RED
         for (var i =0; i < 4; i++) {
             this.redSquareArray[i] = new ColouredSquare(PieceHolder.NONE, this.SQUARE_SIZE + i * this.SQUARE_SIZE ,5 * this.SQUARE_SIZE, Color.RED);
             this.blueSquareArray[i] = new ColouredSquare(PieceHolder.NONE,5 * this.SQUARE_SIZE , 50 + i *this.SQUARE_SIZE, Color.BLUE);
@@ -100,6 +99,21 @@ export default class Board {
             }
         }
         return -1;
+    }
+
+    public isClickedSquareOfColor(x: number, y: number, c: Color): boolean {
+        let clickedPiece : Piece = PieceHolder.NONE;       
+        for (var i = 0; i < this.squareArray.length; i++) {
+            let s: Square = this.squareArray[i];
+            if (x > s.xPos && x < s.xPos + this.SQUARE_SIZE && y > s.yPos && y < s.yPos + this.SQUARE_SIZE) {
+                clickedPiece = this.squareArray[i].occupyingPiece;
+            }
+        }
+        if(clickedPiece.color === c) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     public getNumberOfPawnsOnBoardOfColor(c : Color) {
