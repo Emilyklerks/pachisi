@@ -135,7 +135,7 @@ class Board {
             this.squareArray[i] = new Square_1.default(PieceHolder_1.default.NONE, x * this.SQUARE_SIZE, y * this.SQUARE_SIZE, Color_1.Color.NONE);
         }
         this.squareArray[this.RED_START].isStartingSquareOfColor = Color_1.Color.RED;
-        //this.squareArray[this.RED_START].occupyingPiece = PieceHolder.RED;
+        this.squareArray[this.RED_START].occupyingPiece = PieceHolder_1.default.RED;
         this.squareArray[this.RED_FINAL].isFinalSquareOfColor = Color_1.Color.RED;
         this.squareArray[this.BLUE_START].isStartingSquareOfColor = Color_1.Color.BLUE;
         this.squareArray[this.BLUE_START].occupyingPiece = PieceHolder_1.default.BLUE;
@@ -154,6 +154,9 @@ class Board {
             this.greenSquareArray[i] = new ColouredSquare_1.default(PieceHolder_1.default.NONE, 9 * this.SQUARE_SIZE - i * this.SQUARE_SIZE, 5 * this.SQUARE_SIZE, Color_1.Color.BLUE);
             this.yellowSquareArray[i] = new ColouredSquare_1.default(PieceHolder_1.default.NONE, 5 * this.SQUARE_SIZE, 9 * 50 - i * this.SQUARE_SIZE, Color_1.Color.YELLOW);
         }
+        this.redSquareArray[3].occupyingPiece = PieceHolder_1.default.RED;
+        this.redSquareArray[1].occupyingPiece = PieceHolder_1.default.RED;
+        this.redSquareArray[2].occupyingPiece = PieceHolder_1.default.RED;
     }
     getClickedSquareIndex(x, y) {
         for (var i = 0; i < this.squareArray.length; i++) {
@@ -164,7 +167,7 @@ class Board {
         }
         return -1;
     }
-    isCickedSquareOfColor(x, y, c) {
+    isClickedSquareOfColor(x, y, c) {
         let clickedPiece = PieceHolder_1.default.NONE;
         for (var i = 0; i < this.squareArray.length; i++) {
             let s = this.squareArray[i];
@@ -188,6 +191,18 @@ class Board {
             }
         }
         return count;
+    }
+    getIndicesPawnsOnBoardOfColor(c) {
+        let pawns = new Array();
+        for (var i = 0; i < this.squareArray.length; i++) {
+            let s = this.squareArray[i];
+            if (s.occupyingPiece.color == c) {
+                console.log("found piece");
+                pawns.push(i);
+            }
+        }
+        console.log(pawns);
+        return pawns;
     }
     getNumberOfPawnsOnEndRowOfColor(c) {
         let arrayToCheck = [];
@@ -255,6 +270,72 @@ exports.default = Board;
 
 /***/ }),
 
+/***/ "./js/Bot.ts":
+/*!*******************!*\
+  !*** ./js/Bot.ts ***!
+  \*******************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+const Color_1 = __webpack_require__(/*! ./Color */ "./js/Color.ts");
+class Bot {
+    constructor(c) {
+        this.aiColor = c;
+    }
+    checkIfAIturnIsNext(turnColor) {
+        if (turnColor == this.aiColor) {
+            return true;
+        }
+        return false;
+    }
+    handleTurn(myGc) {
+        if (myGc.gameState.myBoard.getNumberOfPawnsOnBoardOfColor(Color_1.Color.BLUE) == 0) {
+            myGc = this.clickOk(myGc);
+        }
+        else {
+            let chosenPawn = this.decideMove(myGc.gameState);
+            myGc.assignPawnClick(chosenPawn);
+            myGc.selectAndMovePawnAndMoveToNextTurn();
+        }
+        return myGc;
+    }
+    clickOk(myGc) {
+        myGc.moveToNextTurn();
+        return myGc;
+    }
+    decideMove(gs) {
+        let pawns = gs.myBoard.getIndicesPawnsOnBoardOfColor(this.aiColor);
+        if (pawns.length == 1) {
+            console.log("the index of the first pawn is:" + pawns[0]);
+            return pawns[0];
+        }
+        else {
+            for (let pawn of pawns) {
+                console.log(pawns);
+                console.log("rolled number" + gs.rolledNumber);
+                let resultingPos = pawn + gs.rolledNumber;
+                let colorOnResultPos = gs.myBoard.squareArray[resultingPos].occupyingPiece.color;
+                if (colorOnResultPos != Color_1.Color.NONE && colorOnResultPos != this.aiColor) {
+                    return pawn;
+                }
+            }
+            return pawns[pawns.length - 1];
+        }
+    }
+    delay(milliseconds) {
+        return new Promise(resolve => {
+            setTimeout(resolve, milliseconds);
+        });
+    }
+}
+exports.Bot = Bot;
+
+
+/***/ }),
+
 /***/ "./js/Color.ts":
 /*!*********************!*\
   !*** ./js/Color.ts ***!
@@ -313,7 +394,7 @@ const Board_1 = __webpack_require__(/*! ./Board */ "./js/Board.ts");
 const Color_1 = __webpack_require__(/*! ./Color */ "./js/Color.ts");
 const PieceHolder_1 = __webpack_require__(/*! ./PieceHolder */ "./js/PieceHolder.ts");
 const GameState_1 = __webpack_require__(/*! ./GameState */ "./js/GameState.ts");
-const GameGUI_1 = __webpack_require__(/*! ./GameGUI */ "./js/GameGUI.ts");
+const Bot_1 = __webpack_require__(/*! ./Bot */ "./js/Bot.ts");
 class GameController {
     constructor() {
         this.clickedPawnIndex = 0;
@@ -321,28 +402,32 @@ class GameController {
     initialize() {
         let board = new Board_1.default();
         this.gameState = new GameState_1.default(board, Color_1.Color.RED);
+        this.bot = new Bot_1.Bot(Color_1.Color.BLUE);
     }
     checkIfOwnPawnIsClicked(e) {
-        console.log(e.clientX, e.clientY);
-        if (this.gameState.myBoard.isCickedSquareOfColor(e.clientX, e.clientY, this.gameState.currentTurnColor)) {
+        if (this.gameState.myBoard.isClickedSquareOfColor(e.clientX, e.clientY, this.gameState.currentTurnColor)) {
             this.clickedPawnIndex = this.gameState.myBoard.getClickedSquareIndex(e.clientX, e.clientY);
             return true;
         }
         return false;
     }
+    assignPawnClick(index) {
+        this.clickedPawnIndex = index;
+    }
     rollDie() {
         let roll = Math.floor(Math.random() * 6) + 1;
         if (roll == 6) {
-            if (this.gameState.myBoard.getNumberOfPawnsOnBoardOfColor(this.gameState.currentTurnColor) < 4) {
+            const totalPawns = this.gameState.myBoard.getNumberOfPawnsOnBoardOfColor(this.gameState.currentTurnColor) + this.gameState.myBoard.getNumberOfPawnsOnEndRowOfColor(this.gameState.currentTurnColor);
+            if (totalPawns < 4) {
                 let startSquare = Board_1.default.getStartingSquareOfColor(this.gameState.currentTurnColor);
                 this.gameState.myBoard.squareArray[startSquare].occupyingPiece = PieceHolder_1.default.returnPieceOfColor(this.gameState.currentTurnColor);
             }
         }
-        this.gameState = new GameState_1.default(this.gameState.myBoard, this.gameState.currentTurnColor, true, roll);
+        this.gameState.rolledNumber = roll;
     }
-    selectAndMovePawn() {
+    selectAndMovePawnAndMoveToNextTurn() {
         const rolledPluscurrent = this.clickedPawnIndex + this.gameState.rolledNumber;
-        const resultingPosition = rolledPluscurrent > 39 ? rolledPluscurrent - 39 : rolledPluscurrent;
+        const resultingPosition = rolledPluscurrent > 39 ? rolledPluscurrent - 38 : rolledPluscurrent;
         if (Board_1.default.passedFinalSquareOfColor(this.gameState.currentTurnColor, this.clickedPawnIndex, this.gameState.rolledNumber)) {
             this.movePawnToFinalRow();
         }
@@ -369,13 +454,14 @@ class GameController {
         this.moveToNextTurn();
     }
     moveToNextTurn() {
-        this.gameState.currentTurnColor = this.gameState.currentTurnColor == 3 ? 0 : this.gameState.currentTurnColor + 1;
-        this.rollDie();
-    }
-    moveToNextTurnAndUpdateGUI() {
-        this.gameState.currentTurnColor = this.gameState.currentTurnColor == 3 ? 0 : this.gameState.currentTurnColor + 1;
-        this.rollDie();
-        GameGUI_1.default.drawGameState(this.gameState);
+        if (this.gameState.myBoard.getNumberOfPawnsOnEndRowOfColor(this.gameState.currentTurnColor) == 4) {
+            alert(Color_1.Color[this.gameState.currentTurnColor] + "won!");
+            this.initialize();
+        }
+        else {
+            this.gameState.currentTurnColor = this.gameState.currentTurnColor == 3 ? 0 : this.gameState.currentTurnColor + 1;
+            this.rollDie();
+        }
     }
 }
 exports.default = GameController;
@@ -628,19 +714,39 @@ exports.default = Square;
 Object.defineProperty(exports, "__esModule", { value: true });
 const GameController_1 = __webpack_require__(/*! ./GameController */ "./js/GameController.ts");
 const GameGUI_1 = __webpack_require__(/*! ./GameGUI */ "./js/GameGUI.ts");
+const Bot_1 = __webpack_require__(/*! ./Bot */ "./js/Bot.ts");
+const Color_1 = __webpack_require__(/*! ./Color */ "./js/Color.ts");
 function init() {
-    const gc = new GameController_1.default();
+    var gc = new GameController_1.default();
     gc.initialize();
+    const bot = new Bot_1.Bot(Color_1.Color.BLUE);
     window["gc"] = gc;
     window["GameGUI"] = GameGUI_1.default;
     gc.rollDie();
     GameGUI_1.default.drawGameState(gc.gameState);
     document.getElementById("myCanvas").addEventListener("click", event => {
-        if (gc.checkIfOwnPawnIsClicked(event)) {
-            gc.selectAndMovePawn();
-            GameGUI_1.default.drawGameState(gc.gameState);
-        }
+        playTurn(event);
     });
+    function playTurn(event) {
+        if (gc.checkIfOwnPawnIsClicked(event)) {
+            gc.selectAndMovePawnAndMoveToNextTurn();
+            GameGUI_1.default.drawGameState(gc.gameState);
+            if (bot.checkIfAIturnIsNext(gc.gameState.currentTurnColor)) {
+                document.getElementById("myCanvas").outerHTML = document.getElementById("myCanvas").outerHTML;
+                GameGUI_1.default.drawGameState(gc.gameState);
+                delay(1000).then(() => {
+                    gc = bot.handleTurn(gc),
+                        GameGUI_1.default.drawGameState(gc.gameState);
+                    document.getElementById("myCanvas").addEventListener("click", event => {
+                        playTurn(event);
+                    });
+                });
+            }
+        }
+    }
+    function delay(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
 }
 init();
 

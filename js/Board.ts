@@ -89,6 +89,10 @@ export default class Board {
             this.greenSquareArray[i] = new ColouredSquare(PieceHolder.NONE,9*this.SQUARE_SIZE - i * this.SQUARE_SIZE, 5 * this.SQUARE_SIZE, Color.BLUE);
             this.yellowSquareArray[i] = new ColouredSquare(PieceHolder.NONE, 5*this.SQUARE_SIZE, 9 * 50 - i *this.SQUARE_SIZE, Color.YELLOW);
         }
+
+        this.redSquareArray[3].occupyingPiece = PieceHolder.RED;
+        this.redSquareArray[1].occupyingPiece = PieceHolder.RED;
+        this.redSquareArray[2].occupyingPiece = PieceHolder.RED;
     }
 
     public getClickedSquareIndex(x: number, y: number): number {       
@@ -125,6 +129,19 @@ export default class Board {
             }
         }
         return count;
+    }
+
+    public getIndicesPawnsOnBoardOfColor(c : Color): number[] {
+        let pawns = new Array();
+        for (var i = 0; i < this.squareArray.length; i++) {
+            let s: Square = this.squareArray[i];   
+            if (s.occupyingPiece.color == c) {
+                console.log("found piece");
+                pawns.push(i);
+            }
+        }
+        console.log(pawns);
+        return pawns;
     }
 
     public getNumberOfPawnsOnEndRowOfColor(c: Color) {

@@ -5,6 +5,7 @@ import PieceHolder from "./PieceHolder";
 import Square from "./Square";
 import GameState from "./GameState";
 import GameGUI from "./GameGUI";
+import { Bot } from "./Bot";
 
 export default class GameController {
     mouseX;
@@ -13,10 +14,12 @@ export default class GameController {
     gameStateArray : GameState[];
     gameover : boolean;
     clickedPawnIndex : number = 0;
+    bot : Bot;
     
     public initialize(): void {
         let board : Board = new Board();
         this.gameState = new GameState(board, Color.RED);
+        this.bot = new Bot(Color.BLUE);
     }
 
     public checkIfOwnPawnIsClicked(e): boolean {
@@ -27,10 +30,15 @@ export default class GameController {
         return false;
     }
 
+    public assignPawnClick(index) {
+        this.clickedPawnIndex = index;
+    }
+
     public rollDie(): void{
         let roll = Math.floor(Math.random() * 6) + 1;
         if (roll == 6) {
-            if (this.gameState.myBoard.getNumberOfPawnsOnBoardOfColor(this.gameState.currentTurnColor) < 4) {
+            const totalPawns = this.gameState.myBoard.getNumberOfPawnsOnBoardOfColor(this.gameState.currentTurnColor) + this.gameState.myBoard.getNumberOfPawnsOnEndRowOfColor(this.gameState.currentTurnColor);
+            if ( totalPawns < 4) {
                 let startSquare = Board.getStartingSquareOfColor(this.gameState.currentTurnColor); 
                 this.gameState.myBoard.squareArray[startSquare].occupyingPiece = PieceHolder.returnPieceOfColor(this.gameState.currentTurnColor);
             }
@@ -38,9 +46,9 @@ export default class GameController {
         this.gameState.rolledNumber= roll;
     }
 
-    public selectAndMovePawn(): void {
+    public selectAndMovePawnAndMoveToNextTurn(): void {
         const rolledPluscurrent = this.clickedPawnIndex + this.gameState.rolledNumber;
-        const resultingPosition = rolledPluscurrent > 39 ?  rolledPluscurrent - 39 : rolledPluscurrent;
+        const resultingPosition = rolledPluscurrent > 39 ?  rolledPluscurrent - 38 : rolledPluscurrent;
 
         if (Board.passedFinalSquareOfColor(this.gameState.currentTurnColor, this.clickedPawnIndex, this.gameState.rolledNumber)) {
             this.movePawnToFinalRow();
@@ -69,8 +77,13 @@ export default class GameController {
     }
 
     public moveToNextTurn() {
-        this.gameState.currentTurnColor = this.gameState.currentTurnColor == 3 ? 0 : this.gameState.currentTurnColor + 1;
-        this.rollDie();
+        if (this.gameState.myBoard.getNumberOfPawnsOnEndRowOfColor(this.gameState.currentTurnColor) == 4) {
+            alert(Color[this.gameState.currentTurnColor] + "won!");
+            this.initialize();
+        } else {
+            this.gameState.currentTurnColor = this.gameState.currentTurnColor == 3 ? 0 : this.gameState.currentTurnColor + 1;
+            this.rollDie();
+        }
     }
 }
 
