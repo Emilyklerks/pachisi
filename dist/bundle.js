@@ -154,9 +154,6 @@ class Board {
             this.greenSquareArray[i] = new ColouredSquare_1.default(PieceHolder_1.default.NONE, 9 * this.SQUARE_SIZE - i * this.SQUARE_SIZE, 5 * this.SQUARE_SIZE, Color_1.Color.BLUE);
             this.yellowSquareArray[i] = new ColouredSquare_1.default(PieceHolder_1.default.NONE, 5 * this.SQUARE_SIZE, 9 * 50 - i * this.SQUARE_SIZE, Color_1.Color.YELLOW);
         }
-        this.redSquareArray[3].occupyingPiece = PieceHolder_1.default.RED;
-        this.redSquareArray[1].occupyingPiece = PieceHolder_1.default.RED;
-        this.redSquareArray[2].occupyingPiece = PieceHolder_1.default.RED;
     }
     getClickedSquareIndex(x, y) {
         for (var i = 0; i < this.squareArray.length; i++) {
@@ -393,26 +390,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const Board_1 = __webpack_require__(/*! ./Board */ "./js/Board.ts");
 const Color_1 = __webpack_require__(/*! ./Color */ "./js/Color.ts");
 const PieceHolder_1 = __webpack_require__(/*! ./PieceHolder */ "./js/PieceHolder.ts");
-const GameState_1 = __webpack_require__(/*! ./GameState */ "./js/GameState.ts");
-const Bot_1 = __webpack_require__(/*! ./Bot */ "./js/Bot.ts");
 class GameController {
-    constructor() {
+    constructor(gameState) {
         this.clickedPawnIndex = 0;
-    }
-    initialize() {
-        let board = new Board_1.default();
-        this.gameState = new GameState_1.default(board, Color_1.Color.RED);
-        this.bot = new Bot_1.Bot(Color_1.Color.BLUE);
-    }
-    checkIfOwnPawnIsClicked(e) {
-        if (this.gameState.myBoard.isClickedSquareOfColor(e.clientX, e.clientY, this.gameState.currentTurnColor)) {
-            this.clickedPawnIndex = this.gameState.myBoard.getClickedSquareIndex(e.clientX, e.clientY);
-            return true;
-        }
-        return false;
-    }
-    assignPawnClick(index) {
-        this.clickedPawnIndex = index;
+        this.gameState = gameState;
     }
     rollDie() {
         let roll = Math.floor(Math.random() * 6) + 1;
@@ -424,6 +405,16 @@ class GameController {
             }
         }
         this.gameState.rolledNumber = roll;
+    }
+    checkIfOwnPawnIsClicked(e) {
+        if (this.gameState.myBoard.isClickedSquareOfColor(e.clientX, e.clientY, this.gameState.currentTurnColor)) {
+            this.assignPawnClick(this.gameState.myBoard.getClickedSquareIndex(e.clientX, e.clientY));
+            return true;
+        }
+        return false;
+    }
+    assignPawnClick(index) {
+        this.clickedPawnIndex = index;
     }
     selectAndMovePawnAndMoveToNextTurn() {
         const rolledPluscurrent = this.clickedPawnIndex + this.gameState.rolledNumber;
@@ -456,7 +447,6 @@ class GameController {
     moveToNextTurn() {
         if (this.gameState.myBoard.getNumberOfPawnsOnEndRowOfColor(this.gameState.currentTurnColor) == 4) {
             alert(Color_1.Color[this.gameState.currentTurnColor] + "won!");
-            this.initialize();
         }
         else {
             this.gameState.currentTurnColor = this.gameState.currentTurnColor == 3 ? 0 : this.gameState.currentTurnColor + 1;
@@ -483,7 +473,10 @@ const Color_1 = __webpack_require__(/*! ./Color */ "./js/Color.ts");
 const PieceHolder_1 = __webpack_require__(/*! ./PieceHolder */ "./js/PieceHolder.ts");
 class GameGUI {
     static drawGameState(GS) {
-        console.log(document);
+        GameGUI.drawDashBoardText(GS);
+        GameGUI.drawBoard(GS);
+    }
+    static drawDashBoardText(GS) {
         document.getElementById("rolledNumber").innerHTML = "";
         document.getElementById("buttonContainer").innerHTML = "";
         const colorString = Color_1.Color[GS.currentTurnColor];
@@ -501,9 +494,10 @@ class GameGUI {
         else {
             document.getElementById("rolledNumber").innerHTML = "You have rolled a " + GS.rolledNumber + ". Please select a piece to move.";
         }
+    }
+    static drawBoard(GS) {
         var canvas = document.getElementById("myCanvas");
         var ctx = canvas.getContext("2d");
-        //Draw the normal board
         for (var i = 0; i < GS.myBoard.squareArray.length; i++) {
             let thisSquare = GS.myBoard.squareArray[i];
             ctx.fillStyle = "white";
@@ -523,7 +517,6 @@ class GameGUI {
             ctx.fillRect(thisSquare.xPos, thisSquare.yPos, 50, 50);
             ctx.strokeRect(thisSquare.xPos, thisSquare.yPos, 50, 50);
             ctx.stroke();
-            //draw the Pieces
             if (thisSquare.occupyingPiece != PieceHolder_1.default.NONE) {
                 ctx.beginPath();
                 ctx.arc(thisSquare.xPos + 25, thisSquare.yPos + 25, 20, 0, 2 * Math.PI);
@@ -532,7 +525,6 @@ class GameGUI {
                 ctx.stroke();
             }
         }
-        //Draw the final 4 squares of each color
         for (var i = 0; i < 4; i++) {
             let red = GS.myBoard.redSquareArray[i];
             let blue = GS.myBoard.blueSquareArray[i];
@@ -551,7 +543,6 @@ class GameGUI {
             ctx.fillRect(yellow.xPos, yellow.yPos, 50, 50);
             ctx.strokeRect(yellow.xPos, yellow.yPos, 50, 50);
             ctx.stroke();
-            //draw the Pieces
             if (red.occupyingPiece != PieceHolder_1.default.NONE) {
                 ctx.beginPath();
                 ctx.arc(red.xPos + 25, red.yPos + 25, 20, 0, 2 * Math.PI);
@@ -581,13 +572,6 @@ class GameGUI {
                 ctx.stroke();
             }
         }
-    }
-    gameOver(c) {
-        var canvas = document.getElementById("myCanvas");
-        var ctx = canvas.getContext("2d");
-        ctx.font = "30px Arial";
-        let str = Color_1.Color[c].toString;
-        ctx.fillText(str + " wins!", 300, 50);
     }
 }
 exports.default = GameGUI;
@@ -716,13 +700,16 @@ const GameController_1 = __webpack_require__(/*! ./GameController */ "./js/GameC
 const GameGUI_1 = __webpack_require__(/*! ./GameGUI */ "./js/GameGUI.ts");
 const Bot_1 = __webpack_require__(/*! ./Bot */ "./js/Bot.ts");
 const Color_1 = __webpack_require__(/*! ./Color */ "./js/Color.ts");
+const Board_1 = __webpack_require__(/*! ./Board */ "./js/Board.ts");
+const GameState_1 = __webpack_require__(/*! ./GameState */ "./js/GameState.ts");
 function init() {
-    var gc = new GameController_1.default();
-    gc.initialize();
+    let board = new Board_1.default();
+    let gameState = new GameState_1.default(board, Color_1.Color.RED);
     const bot = new Bot_1.Bot(Color_1.Color.BLUE);
+    var gc = new GameController_1.default(gameState);
+    gc.rollDie();
     window["gc"] = gc;
     window["GameGUI"] = GameGUI_1.default;
-    gc.rollDie();
     GameGUI_1.default.drawGameState(gc.gameState);
     document.getElementById("myCanvas").addEventListener("click", event => {
         playTurn(event);
@@ -732,7 +719,7 @@ function init() {
             gc.selectAndMovePawnAndMoveToNextTurn();
             GameGUI_1.default.drawGameState(gc.gameState);
             if (bot.checkIfAIturnIsNext(gc.gameState.currentTurnColor)) {
-                document.getElementById("myCanvas").outerHTML = document.getElementById("myCanvas").outerHTML;
+                document.getElementById("myCanvas").outerHTML = document.getElementById("myCanvas").outerHTML; //removes the listeners of the canvas object
                 GameGUI_1.default.drawGameState(gc.gameState);
                 delay(1000).then(() => {
                     gc = bot.handleTurn(gc),

@@ -6,7 +6,11 @@ import GameState from "./GameState";
 export default class GameGUI {
 
     public static drawGameState(GS: GameState): void {
-        console.log(document);
+        GameGUI.drawDashBoardText(GS);
+        GameGUI.drawBoard(GS);
+    }   
+
+    private static drawDashBoardText(GS: GameState): void {
         document.getElementById("rolledNumber").innerHTML = "";
         document.getElementById("buttonContainer").innerHTML = "";
 
@@ -24,11 +28,12 @@ export default class GameGUI {
         } else {
                 document.getElementById("rolledNumber").innerHTML = "You have rolled a " + GS.rolledNumber + ". Please select a piece to move.";
         }        
+    }
 
+    private static drawBoard(GS: GameState) {
         var canvas = <HTMLCanvasElement> document.getElementById("myCanvas");  
         var ctx = canvas.getContext("2d"); 
 
-        //Draw the normal board
         for (var i = 0; i < GS.myBoard.squareArray.length; i++) {
             let thisSquare = GS.myBoard.squareArray[i];
             
@@ -47,9 +52,7 @@ export default class GameGUI {
             ctx.fillRect(thisSquare.xPos, thisSquare.yPos, 50, 50);          
             ctx.strokeRect(thisSquare.xPos, thisSquare.yPos, 50, 50);
             ctx.stroke();
-                   
 
-            //draw the Pieces
             if (thisSquare.occupyingPiece != PieceHolder.NONE) {
                 ctx.beginPath();
                 ctx.arc(thisSquare.xPos+25,thisSquare.yPos+25,20,0,2*Math.PI);
@@ -58,8 +61,7 @@ export default class GameGUI {
                 ctx.stroke();
             }
         }
-        
-        //Draw the final 4 squares of each color
+
         for (var i = 0; i <4; i++) {
             let red = GS.myBoard.redSquareArray[i];
             let blue = GS.myBoard.blueSquareArray[i];
@@ -73,7 +75,7 @@ export default class GameGUI {
             ctx.fillStyle = "blue";
             ctx.fillRect(blue.xPos, blue.yPos, 50, 50);
             ctx.strokeRect(blue.xPos, blue.yPos, 50, 50);
-  
+    
             ctx.fillStyle = "green";
             ctx.fillRect(green.xPos, green.yPos, 50, 50);
             ctx.strokeRect(green.xPos, green.yPos, 50, 50);
@@ -84,7 +86,6 @@ export default class GameGUI {
 
             ctx.stroke(); 
 
-                //draw the Pieces
             if (red.occupyingPiece!= PieceHolder.NONE) {
                 ctx.beginPath();
                 ctx.arc(red.xPos+25,red.yPos+25,20,0,2*Math.PI);
@@ -116,12 +117,4 @@ export default class GameGUI {
             }
         }
     }
-    
-    public gameOver(c : Color) {
-        var canvas = <HTMLCanvasElement> document.getElementById("myCanvas");  
-        var ctx = canvas.getContext("2d"); 
-        ctx.font = "30px Arial";
-        let str = Color[c].toString; 
-        ctx.fillText(str + " wins!",300,50); 
-    }
-}
+}         

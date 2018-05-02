@@ -85,14 +85,10 @@ export default class Board {
     private fillColouredSquareArrays() {
         for (var i =0; i < 4; i++) {
             this.redSquareArray[i] = new ColouredSquare(PieceHolder.NONE, this.SQUARE_SIZE + i * this.SQUARE_SIZE ,5 * this.SQUARE_SIZE, Color.RED);
-            this.blueSquareArray[i] = new ColouredSquare(PieceHolder.NONE,5 * this.SQUARE_SIZE , 50 + i *this.SQUARE_SIZE, Color.BLUE);
-            this.greenSquareArray[i] = new ColouredSquare(PieceHolder.NONE,9*this.SQUARE_SIZE - i * this.SQUARE_SIZE, 5 * this.SQUARE_SIZE, Color.BLUE);
+            this.blueSquareArray[i] = new ColouredSquare(PieceHolder.NONE, 5 * this.SQUARE_SIZE , 50 + i *this.SQUARE_SIZE, Color.BLUE);
+            this.greenSquareArray[i] = new ColouredSquare(PieceHolder.NONE, 9*this.SQUARE_SIZE - i * this.SQUARE_SIZE, 5 * this.SQUARE_SIZE, Color.BLUE);
             this.yellowSquareArray[i] = new ColouredSquare(PieceHolder.NONE, 5*this.SQUARE_SIZE, 9 * 50 - i *this.SQUARE_SIZE, Color.YELLOW);
         }
-
-        this.redSquareArray[3].occupyingPiece = PieceHolder.RED;
-        this.redSquareArray[1].occupyingPiece = PieceHolder.RED;
-        this.redSquareArray[2].occupyingPiece = PieceHolder.RED;
     }
 
     public getClickedSquareIndex(x: number, y: number): number {       

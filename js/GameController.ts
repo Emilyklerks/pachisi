@@ -8,32 +8,16 @@ import GameGUI from "./GameGUI";
 import { Bot } from "./Bot";
 
 export default class GameController {
-    mouseX;
-    mouseY;
+    private mouseX;
+    private mouseY;
     gameState : GameState;
-    gameStateArray : GameState[];
     gameover : boolean;
     clickedPawnIndex : number = 0;
-    bot : Bot;
     
-    public initialize(): void {
-        let board : Board = new Board();
-        this.gameState = new GameState(board, Color.RED);
-        this.bot = new Bot(Color.BLUE);
+    constructor(gameState: GameState) {
+        this.gameState = gameState;
     }
-
-    public checkIfOwnPawnIsClicked(e): boolean {
-        if (this.gameState.myBoard.isClickedSquareOfColor(e.clientX,e.clientY, this.gameState.currentTurnColor)) {
-            this.clickedPawnIndex = this.gameState.myBoard.getClickedSquareIndex(e.clientX, e.clientY);
-            return true;
-        }
-        return false;
-    }
-
-    public assignPawnClick(index) {
-        this.clickedPawnIndex = index;
-    }
-
+    
     public rollDie(): void{
         let roll = Math.floor(Math.random() * 6) + 1;
         if (roll == 6) {
@@ -45,6 +29,19 @@ export default class GameController {
         }
         this.gameState.rolledNumber= roll;
     }
+
+    public checkIfOwnPawnIsClicked(e): boolean {
+        if (this.gameState.myBoard.isClickedSquareOfColor(e.clientX,e.clientY, this.gameState.currentTurnColor)) {
+            this.assignPawnClick(this.gameState.myBoard.getClickedSquareIndex(e.clientX, e.clientY));
+            return true;
+        }
+        return false;
+    }
+
+    public assignPawnClick(index) {
+        this.clickedPawnIndex = index;
+    }
+
 
     public selectAndMovePawnAndMoveToNextTurn(): void {
         const rolledPluscurrent = this.clickedPawnIndex + this.gameState.rolledNumber;
@@ -79,7 +76,6 @@ export default class GameController {
     public moveToNextTurn() {
         if (this.gameState.myBoard.getNumberOfPawnsOnEndRowOfColor(this.gameState.currentTurnColor) == 4) {
             alert(Color[this.gameState.currentTurnColor] + "won!");
-            this.initialize();
         } else {
             this.gameState.currentTurnColor = this.gameState.currentTurnColor == 3 ? 0 : this.gameState.currentTurnColor + 1;
             this.rollDie();
